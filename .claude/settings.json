@@ -53,7 +53,8 @@
       "Bash(python docs/build.py)",
       "Bash(dotnet --version)",
       "Bash(dotnet build *)",
-      "Bash(dotnet test *)"
+      "Bash(dotnet test *)",
+      "Bash(python bench/realworld.py)"
     ]
   }
 }

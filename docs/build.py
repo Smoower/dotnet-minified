@@ -302,6 +302,32 @@ OVERVIEW = """<section>
     <div class="box"><div class="n hl">Lighter</div><div class="l">shorter code leaves more room in the context window over a session</div></div>
   </div>
 
+  <h2>What it saves on real code</h2>
+  <p class="lead">Not a toy benchmark &mdash; these are untouched production files from a live .NET app, rewritten in the compact style and measured with Claude&rsquo;s own tokenizer (<code>claude-opus-4-8</code>). On the files that are mostly framework ceremony &mdash; a typical API controller &mdash; the compact form cuts <strong>up to half the tokens</strong>. Spread across a whole application, where most of the code is business logic that does not (and should not) compress, the saving settles at <strong>up to around a quarter</strong>.</p>
+  <div class="stat">
+    <div class="box"><div class="n hl">up to 50%</div><div class="l">fewer tokens on a single API controller</div></div>
+    <div class="box"><div class="n hl">up to 25%</div><div class="l">across a whole app, business logic included</div></div>
+  </div>
+
+  <p class="lead">Each row below is the same file before and after; behaviour and the compiled IL are identical. This slice is deliberately boilerplate-heavy, so it sits near the top of that range. Browse the originals and their <code>.min.cs</code> counterparts in <a href="https://github.com/smoower/dotnet-minified/tree/main/samples/Individual-Samples">samples/Individual-Samples</a>, and the full method in <a href="https://github.com/smoower/dotnet-minified/blob/main/bench/FINDINGS.md">bench/FINDINGS.md</a>.</p>
+
+  <table>
+  <thead><tr><th>File</th><th>Original</th><th>Smoower</th><th>Saved</th></tr></thead>
+  <tbody>
+    <tr><td><code>AdminAuditController.cs</code></td><td>7,326</td><td>5,304</td><td><span class="delta pos">&minus;2,022 &middot; 28%</span></td></tr>
+    <tr><td><code>EntryExpiryController.cs</code></td><td>3,640</td><td>2,510</td><td><span class="delta pos">&minus;1,130 &middot; 31%</span></td></tr>
+    <tr><td><code>ExpiryDashboardController.cs</code></td><td>4,023</td><td>2,272</td><td><span class="delta pos">&minus;1,751 &middot; 44%</span></td></tr>
+    <tr><td><code>RasepiDbContext.cs</code> <span class="deps">(~2k-line EF schema)</span></td><td>31,713</td><td>23,993</td><td><span class="delta pos">&minus;7,720 &middot; 24%</span></td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>46,702</strong></td><td><strong>34,079</strong></td><td><span class="delta pos">&minus;12,623 &middot; 27%</span></td></tr>
+  </tbody>
+  </table>
+
+  <p class="lead">The code Claude writes is billed as <em>output</em> tokens &mdash; the most expensive kind. At Opus 4.8&rsquo;s current rate of <strong>$25 per million output tokens</strong>, emitting this sample the verbose way costs <strong>$1.17</strong>; the compact way costs <strong>$0.85</strong>. That is <strong>~$0.32 saved every single time</strong> these files are written &mdash; and AI-generated code is written, rewritten, and refactored over and over across a project&rsquo;s life.</p>
+  <div class="stat">
+    <div class="box"><div class="n hl">12,623</div><div class="l">output tokens saved on this slice (~27%)</div></div>
+    <div class="box"><div class="n hl">~$0.32</div><div class="l">saved per pass at $25/M output (Opus 4.8)</div></div>
+  </div>
+
   <h2>The honest trade-off</h2>
   <p class="lead">The compact form is terser than verbose C#, and at a first glance less familiar to a human reader. The assistant also needs a small rules prompt so it knows the helpers. Neither is free &mdash; but both are paid once and earned back quickly, and what remains is still completely ordinary, debuggable C# that any .NET developer can step through. For AI-heavy projects that is a trade most teams will gladly make. For a one-line script edited by hand, it is not.</p>
 
