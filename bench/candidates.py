@@ -3,11 +3,27 @@
 
 Each row is a realistic call-site: (library, long form, compact candidate).
 The compact form is hypothetical - the point is to see which wraps actually pay.
-o200k_base proxy. Run: pip install tiktoken; python bench/candidates.py
+
+Reports approximate per-call savings, rounded to the nearest 5%, for the
+tiktoken proxy and (when a key is set) Claude's real tokenizer. Run:
+
+    pip install tiktoken anthropic
+    export ANTHROPIC_API_KEY=...        # free count_tokens endpoint
+    python bench/candidates.py
 """
-import tiktoken
-enc = tiktoken.get_encoding("o200k_base")
-def d(long, short): return len(enc.encode(long)) - len(enc.encode(short))
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tokens import (
+    CLAUDE_MODEL,
+    approx_pct,
+    claude_available,
+    claude_toks,
+    claude_unavailable_reason,
+    reduction,
+    tiktoken_toks,
+)
 
 C = [
  ("System.Text.Json", 'JsonSerializer.Serialize(x)', 'x.toJson()'),
@@ -61,14 +77,42 @@ C = [
  ("gRPC client", 'await client.GetUserAsync(new GetUserRequest { Id = id })', 'await client.GetUserAsync(new GetUserRequest { Id = id })'),
 ]
 
-print(f"{'library':26}{'long':>5}{'short':>6}{'save':>6}  example")
+
+def mean(xs):
+    xs = [x for x in xs if x is not None]
+    return sum(xs) / len(xs) if xs else None
+
+
+use_claude = claude_available()
+if use_claude:
+    print(f"claude tokenizer: count_tokens / {CLAUDE_MODEL}\n")
+    print(f"{'library':26}{'tiktoken':>9}{'claude':>8}  example")
+else:
+    print(f"claude tokenizer: skipped ({claude_unavailable_reason()})\n")
+    print(f"{'library':26}{'tiktoken':>9}  example")
+
 by_lib = {}
 for lib, long, short in C:
-    delta = d(long, short)
-    by_lib.setdefault(lib, []).append(delta)
-    ex = long if len(long) < 42 else long[:39] + '...'
-    print(f"{lib:26}{len(enc.encode(long)):5}{len(enc.encode(short)):6}{delta:+6}  {ex}")
+    tk = reduction(tiktoken_toks(long), tiktoken_toks(short))
+    cl = reduction(claude_toks(long), claude_toks(short)) if use_claude else None
+    by_lib.setdefault(lib, []).append((tk, cl))
+    ex = long if len(long) < 42 else long[:39] + "..."
+    if use_claude:
+        print(f"{lib:26}{approx_pct(tk):>9}{approx_pct(cl):>8}  {ex}")
+    else:
+        print(f"{lib:26}{approx_pct(tk):>9}  {ex}")
 
-print(f"\n{'library':26}{'avg save/call':>14}")
-for lib, ds in by_lib.items():
-    print(f"{lib:26}{sum(ds)/len(ds):+14.1f}")
+print("\navg saving per call (approx):")
+if use_claude:
+    print(f"{'library':26}{'tiktoken':>10}{'claude':>9}")
+else:
+    print(f"{'library':26}{'tiktoken':>10}")
+for lib, rows in by_lib.items():
+    tk_avg = approx_pct(mean(r[0] for r in rows))
+    if use_claude:
+        cl_avg = approx_pct(mean(r[1] for r in rows))
+        print(f"{lib:26}{tk_avg:>10}{cl_avg:>9}")
+    else:
+        print(f"{lib:26}{tk_avg:>10}")
+
+print("\nrounded to the nearest 5% on purpose - report the ballpark, not a precise figure.")

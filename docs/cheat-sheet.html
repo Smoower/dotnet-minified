@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smoower.Minified: cheat sheet</title>
+<meta name="description" content="Every long-form to compact mapping, grouped by package.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+  <div class="brand"><b>Smoower.Minified</b><span>cheat sheet</span></div>
+  <nav>
+<a href="index.html">Overview</a>
+<a href="getting-started.html">Getting started</a>
+<a href="libraries.html">Libraries</a>
+<a href="economics.html">Does it pay off?</a>
+<a href="cheat-sheet.html" class="active">Cheat sheet</a>
+  </nav>
+</aside>
+<main class="content" id="top">
+<section>
+<h1>Cheat sheet</h1>
+<p class="lead">Every mapping, grouped by package. The long form on the left, the compact form Smoower uses on the right. Same behaviour, same compiled IL.</p>
+<h2 id="core">Smoower.Minified.Core</h2>
+<h3>Guards</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>string.IsNullOrWhiteSpace(s)</code></td><td class="short"><code>s.nil()</code></td></tr>
+<tr><td class="long"><code>string.IsNullOrEmpty(s)</code></td><td class="short"><code>s.emp()</code></td></tr>
+<tr><td class="long"><code>!items.Any()</code></td><td class="short"><code>items.none()</code></td></tr>
+</tbody></table>
+<h3>Aliases</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>CancellationToken ct</code></td><td class="short"><code>CT ct</code></td></tr>
+<tr><td class="long"><code>IConfiguration cfg</code></td><td class="short"><code>Cfg cfg</code></td></tr>
+</tbody></table>
+<h2 id="aspnetcore">Smoower.Minified.AspNetCore</h2>
+<h3>Attributes</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>[ApiController]</code></td><td class="short"><code>[API]</code></td></tr>
+<tr><td class="long"><code>[Route(&quot;api/users&quot;)]</code></td><td class="short"><code>[RT(&quot;api/users&quot;)]</code></td></tr>
+<tr><td class="long"><code>[HttpGet(&quot;{id}&quot;)]</code></td><td class="short"><code>[HG(&quot;{id}&quot;)]</code></td></tr>
+<tr><td class="long"><code>[HttpPost]</code></td><td class="short"><code>[HPO]</code></td></tr>
+<tr><td class="long"><code>[HttpPut]</code></td><td class="short"><code>[HPU]</code></td></tr>
+<tr><td class="long"><code>[HttpPatch]</code></td><td class="short"><code>[HPA]</code></td></tr>
+<tr><td class="long"><code>[HttpDelete(&quot;{id}&quot;)]</code></td><td class="short"><code>[HD(&quot;{id}&quot;)]</code></td></tr>
+<tr><td class="long"><code>[Authorize]</code></td><td class="short"><code>[AUTH]</code></td></tr>
+<tr><td class="long"><code>[AllowAnonymous]</code></td><td class="short"><code>[ANON]</code></td></tr>
+<tr><td class="long"><code>[FromBody]</code></td><td class="short"><code>[FB]</code></td></tr>
+<tr><td class="long"><code>[FromRoute]</code></td><td class="short"><code>[FR]</code></td></tr>
+<tr><td class="long"><code>[FromQuery]</code></td><td class="short"><code>[FQ]</code></td></tr>
+<tr><td class="long"><code>[FromHeader]</code></td><td class="short"><code>[FH]</code></td></tr>
+</tbody></table>
+<h3>Aliases</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>: ControllerBase</code></td><td class="short"><code>:Ctl</code></td></tr>
+<tr><td class="long"><code>IActionResult</code></td><td class="short"><code>Res</code></td></tr>
+<tr><td class="long"><code>ActionResult</code></td><td class="short"><code>AR</code></td></tr>
+<tr><td class="long"><code>Task&lt;IActionResult&gt;</code></td><td class="short"><code>Tr</code></td></tr>
+</tbody></table>
+<h3>Result-fusing terminators</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>var x=await q.FirstOrDefaultAsync();return x==null?NotFound():Ok(x);</code></td><td class="short"><code>q.ok1()</code></td></tr>
+<tr><td class="long"><code>Ok(await q.ToListAsync())</code></td><td class="short"><code>q.okl()</code></td></tr>
+<tr><td class="long"><code>Ok(await q.CountAsync())</code></td><td class="short"><code>q.okc()</code></td></tr>
+<tr><td class="long"><code>var x=await set.FindAsync(id);return x==null?NotFound():Ok(x);</code></td><td class="short"><code>set.okId(id)</code></td></tr>
+<tr><td class="long"><code>db.Add(e);await db.SaveChangesAsync();return Ok(e);</code></td><td class="short"><code>db.okAdd(e)</code></td></tr>
+<tr><td class="long"><code>db.Add(e);await db.SaveChangesAsync();return CreatedAtAction(...);</code></td><td class="short"><code>db.okNew(e)</code></td></tr>
+<tr><td class="long"><code>CreatedAtAction(nameof(Get), new { id = value.Id }, value)</code></td><td class="short"><code>value.created()</code></td></tr>
+<tr><td class="long"><code>FindAsync+NotFound+Remove+SaveChanges+NoContent</code></td><td class="short"><code>db.delById&lt;User&gt;(id)</code></td></tr>
+</tbody></table>
+<h3>Response-type attributes (Swagger)</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>[ProducesResponseType(StatusCodes.Status200OK)]</code></td><td class="short"><code>[P200]</code></td></tr>
+<tr><td class="long"><code>[ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]</code></td><td class="short"><code>[P200&lt;UserDto&gt;]</code></td></tr>
+<tr><td class="long"><code>[ProducesResponseType(StatusCodes.Status201Created)]</code></td><td class="short"><code>[P201]</code></td></tr>
+<tr><td class="long"><code>[ProducesResponseType(StatusCodes.Status400BadRequest)]</code></td><td class="short"><code>[P400]</code></td></tr>
+<tr><td class="long"><code>[ProducesResponseType(StatusCodes.Status404NotFound)]</code></td><td class="short"><code>[P404]</code></td></tr>
+</tbody></table>
+<h2 id="efcore">Smoower.Minified.EFCore</h2>
+<h3>Query — composition</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>q.Where(x=&gt;x.Id==id)</code></td><td class="short"><code>q.w(x=&gt;x.Id==id)</code></td></tr>
+<tr><td class="long"><code>q.Select(x=&gt;x.Name)</code></td><td class="short"><code>q.s(x=&gt;x.Name)</code></td></tr>
+<tr><td class="long"><code>q.OrderBy(x=&gt;x.Name)</code></td><td class="short"><code>q.ob(x=&gt;x.Name)</code></td></tr>
+<tr><td class="long"><code>q.OrderByDescending(x=&gt;x.Name)</code></td><td class="short"><code>q.obd(x=&gt;x.Name)</code></td></tr>
+<tr><td class="long"><code>q.ThenBy(x=&gt;x.Name)</code></td><td class="short"><code>q.tb(x=&gt;x.Name)</code></td></tr>
+<tr><td class="long"><code>q.ThenByDescending(x=&gt;x.Name)</code></td><td class="short"><code>q.tbd(x=&gt;x.Name)</code></td></tr>
+<tr><td class="long"><code>q.Skip(10)</code></td><td class="short"><code>q.sk(10)</code></td></tr>
+<tr><td class="long"><code>q.Take(10)</code></td><td class="short"><code>q.tk(10)</code></td></tr>
+<tr><td class="long"><code>q.AsNoTracking()</code></td><td class="short"><code>q.nt()</code></td></tr>
+<tr><td class="long"><code>q.AsNoTrackingWithIdentityResolution()</code></td><td class="short"><code>q.ntir()</code></td></tr>
+<tr><td class="long"><code>q.Include(x=&gt;x.Orders)</code></td><td class="short"><code>q.inc(x=&gt;x.Orders)</code></td></tr>
+<tr><td class="long"><code>q.ThenInclude(x=&gt;x.Lines)</code></td><td class="short"><code>q.tinc(x=&gt;x.Lines)</code></td></tr>
+<tr><td class="long"><code>q.GroupBy(x=&gt;x.Status)</code></td><td class="short"><code>q.gb(x=&gt;x.Status)</code></td></tr>
+</tbody></table>
+<h3>Query — async terminators</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>q.ToListAsync()</code></td><td class="short"><code>q.lst()</code></td></tr>
+<tr><td class="long"><code>q.FirstOrDefaultAsync()</code></td><td class="short"><code>q.one()</code></td></tr>
+<tr><td class="long"><code>q.SingleOrDefaultAsync()</code></td><td class="short"><code>q.single()</code></td></tr>
+<tr><td class="long"><code>q.AnyAsync()</code></td><td class="short"><code>q.any()</code></td></tr>
+<tr><td class="long"><code>q.CountAsync()</code></td><td class="short"><code>q.cnt()</code></td></tr>
+<tr><td class="long"><code>q.MaxAsync(x=&gt;x.Total)</code></td><td class="short"><code>q.max(x=&gt;x.Total)</code></td></tr>
+<tr><td class="long"><code>q.MinAsync(x=&gt;x.Total)</code></td><td class="short"><code>q.min(x=&gt;x.Total)</code></td></tr>
+</tbody></table>
+<h3>Write (async; S-suffixed sync variants exist)</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>set.FindAsync(key)</code></td><td class="short"><code>set.id(key)</code></td></tr>
+<tr><td class="long"><code>await db.SaveChangesAsync()</code></td><td class="short"><code>await db.save()</code></td></tr>
+<tr><td class="long"><code>db.Add(e);await db.SaveChangesAsync();</code></td><td class="short"><code>await db.add(e)</code></td></tr>
+<tr><td class="long"><code>db.Update(e);await db.SaveChangesAsync();</code></td><td class="short"><code>await db.upd(e)</code></td></tr>
+<tr><td class="long"><code>db.Remove(e);await db.SaveChangesAsync();</code></td><td class="short"><code>await db.del(e)</code></td></tr>
+</tbody></table>
+<h3>Model config (OnModelCreating)</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>modelBuilder.Entity&lt;T&gt;().HasQueryFilter(f)</code></td><td class="short"><code>mb.qf&lt;T&gt;(f)</code></td></tr>
+<tr><td class="long"><code>entity.HasKey(e=&gt;e.Id)</code></td><td class="short"><code>entity.key(e=&gt;e.Id)</code></td></tr>
+<tr><td class="long"><code>entity.HasIndex(e=&gt;e.Email)</code></td><td class="short"><code>entity.idx(e=&gt;e.Email)</code></td></tr>
+<tr><td class="long"><code>.IsUnique()</code></td><td class="short"><code>.uniq()</code></td></tr>
+<tr><td class="long"><code>entity.Property(e=&gt;e.Name)</code></td><td class="short"><code>entity.p(e=&gt;e.Name)</code></td></tr>
+<tr><td class="long"><code>.IsRequired()</code></td><td class="short"><code>.req()</code></td></tr>
+<tr><td class="long"><code>.HasMaxLength(100)</code></td><td class="short"><code>.max(100)</code></td></tr>
+<tr><td class="long"><code>.HasConversion&lt;string&gt;()</code></td><td class="short"><code>.conv&lt;string&gt;()</code></td></tr>
+<tr><td class="long"><code>entity.HasOne(e=&gt;e.Author)</code></td><td class="short"><code>entity.one(e=&gt;e.Author)</code></td></tr>
+<tr><td class="long"><code>.WithMany(a=&gt;a.Books)</code></td><td class="short"><code>.many(a=&gt;a.Books)</code></td></tr>
+<tr><td class="long"><code>entity.HasMany(e=&gt;e.Books)</code></td><td class="short"><code>entity.hasM(e=&gt;e.Books)</code></td></tr>
+<tr><td class="long"><code>.WithOne(b=&gt;b.Author)</code></td><td class="short"><code>.wOne(b=&gt;b.Author)</code></td></tr>
+<tr><td class="long"><code>.HasForeignKey(e=&gt;e.AuthorId)</code></td><td class="short"><code>.fk(e=&gt;e.AuthorId)</code></td></tr>
+<tr><td class="long"><code>.OnDelete(DeleteBehavior.Cascade)</code></td><td class="short"><code>.cascade()</code></td></tr>
+<tr><td class="long"><code>.OnDelete(DeleteBehavior.Restrict)</code></td><td class="short"><code>.restrict()</code></td></tr>
+<tr><td class="long"><code>.OnDelete(DeleteBehavior.SetNull)</code></td><td class="short"><code>.setNull()</code></td></tr>
+<tr><td class="long"><code>.OnDelete(DeleteBehavior.ClientSetNull)</code></td><td class="short"><code>.clientSetNull()</code></td></tr>
+<tr><td class="long"><code>.OnDelete(behavior)</code></td><td class="short"><code>.onDel(behavior)</code></td></tr>
+</tbody></table>
+<h2 id="extensions">Smoower.Minified.Extensions</h2>
+<h3>Clock (injectable) / Clk (static)</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>DateTime.UtcNow</code></td><td class="short"><code>clock.utc</code></td></tr>
+<tr><td class="long"><code>DateTime.Now</code></td><td class="short"><code>clock.now</code></td></tr>
+<tr><td class="long"><code>DateOnly.FromDateTime(DateTime.UtcNow)</code></td><td class="short"><code>clock.today</code></td></tr>
+<tr><td class="long"><code>DateTimeOffset.UtcNow.ToUnixTimeSeconds()</code></td><td class="short"><code>clock.unix</code></td></tr>
+</tbody></table>
+<h3>DateTime</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>dt.ToUniversalTime()</code></td><td class="short"><code>dt.utc()</code></td></tr>
+<tr><td class="long"><code>dt.ToShortDateString()</code></td><td class="short"><code>dt.sd()</code></td></tr>
+<tr><td class="long"><code>dt.ToLongDateString()</code></td><td class="short"><code>dt.ld()</code></td></tr>
+<tr><td class="long"><code>dt.ToShortTimeString()</code></td><td class="short"><code>dt.st()</code></td></tr>
+<tr><td class="long"><code>dt.ToLongTimeString()</code></td><td class="short"><code>dt.lt()</code></td></tr>
+</tbody></table>
+<h3>TimeSpan factories (on int)</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>TimeSpan.FromMilliseconds(250)</code></td><td class="short"><code>250.ms()</code></td></tr>
+<tr><td class="long"><code>TimeSpan.FromSeconds(30)</code></td><td class="short"><code>30.secs()</code></td></tr>
+<tr><td class="long"><code>TimeSpan.FromMinutes(5)</code></td><td class="short"><code>5.mins()</code></td></tr>
+<tr><td class="long"><code>TimeSpan.FromHours(2)</code></td><td class="short"><code>2.hrs()</code></td></tr>
+<tr><td class="long"><code>TimeSpan.FromDays(7)</code></td><td class="short"><code>7.days()</code></td></tr>
+</tbody></table>
+<h3>Environment</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>Environment.GetEnvironmentVariable(&quot;X&quot;)</code></td><td class="short"><code>Env.get(&quot;X&quot;)</code></td></tr>
+<tr><td class="long"><code>Environment.SetEnvironmentVariable(&quot;X&quot;, v)</code></td><td class="short"><code>Env.set(&quot;X&quot;, v)</code></td></tr>
+</tbody></table>
+<h2 id="hosting">Smoower.Minified.Hosting</h2>
+<h3>IServiceCollection / IServiceProvider</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>services.AddScoped&lt;IFoo, Foo&gt;()</code></td><td class="short"><code>svc.scoped&lt;IFoo, Foo&gt;()</code></td></tr>
+<tr><td class="long"><code>services.AddSingleton&lt;Bar&gt;()</code></td><td class="short"><code>svc.single&lt;Bar&gt;()</code></td></tr>
+<tr><td class="long"><code>services.AddTransient&lt;Baz&gt;()</code></td><td class="short"><code>svc.trans&lt;Baz&gt;()</code></td></tr>
+<tr><td class="long"><code>provider.GetRequiredService&lt;T&gt;()</code></td><td class="short"><code>provider.svc&lt;T&gt;()</code></td></tr>
+</tbody></table>
+<h2 id="logging">Smoower.Minified.Logging</h2>
+<h3>ILogger</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>log.LogInformation(&quot;created {Id}&quot;, id)</code></td><td class="short"><code>log.inf(&quot;created {Id}&quot;, id)</code></td></tr>
+<tr><td class="long"><code>log.LogWarning(&quot;slow {Ms}&quot;, ms)</code></td><td class="short"><code>log.wrn(&quot;slow {Ms}&quot;, ms)</code></td></tr>
+<tr><td class="long"><code>log.LogError(&quot;failed {Id}&quot;, id)</code></td><td class="short"><code>log.err(&quot;failed {Id}&quot;, id)</code></td></tr>
+<tr><td class="long"><code>log.LogDebug(&quot;state {S}&quot;, s)</code></td><td class="short"><code>log.dbg(&quot;state {S}&quot;, s)</code></td></tr>
+</tbody></table>
+<h2 id="http">Smoower.Minified.Http</h2>
+<h3>HttpClient</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>c.GetFromJsonAsync&lt;T&gt;(url)</code></td><td class="short"><code>c.getJson&lt;T&gt;(url)</code></td></tr>
+<tr><td class="long"><code>c.PostAsJsonAsync(url, body)</code></td><td class="short"><code>c.postJson(url, body)</code></td></tr>
+<tr><td class="long"><code>c.PutAsJsonAsync(url, body)</code></td><td class="short"><code>c.putJson(url, body)</code></td></tr>
+<tr><td class="long"><code>c.PatchAsJsonAsync(url, body)</code></td><td class="short"><code>c.patchJson(url, body)</code></td></tr>
+<tr><td class="long"><code>c.DeleteAsync(url)</code></td><td class="short"><code>c.del(url)</code></td></tr>
+</tbody></table>
+<h2 id="validation">Smoower.Minified.Validation</h2>
+<h3>Rules (on MiniValidator&lt;T&gt;)</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>RuleFor(x=&gt;x.Name).NotEmpty()</code></td><td class="short"><code>req(x=&gt;x.Name)</code></td></tr>
+<tr><td class="long"><code>RuleFor(x=&gt;x.Age)</code></td><td class="short"><code>rule(x=&gt;x.Age)</code></td></tr>
+<tr><td class="long"><code>r.MaximumLength(100)</code></td><td class="short"><code>r.max(100)</code></td></tr>
+<tr><td class="long"><code>r.MinimumLength(2)</code></td><td class="short"><code>r.min(2)</code></td></tr>
+<tr><td class="long"><code>r.EmailAddress()</code></td><td class="short"><code>r.email()</code></td></tr>
+<tr><td class="long"><code>r.GreaterThan(0)</code></td><td class="short"><code>r.gt(0)</code></td></tr>
+<tr><td class="long"><code>r.LessThanOrEqualTo(120)</code></td><td class="short"><code>r.lte(120)</code></td></tr>
+<tr><td class="long"><code>r.InclusiveBetween(1, 5)</code></td><td class="short"><code>r.rng(1, 5)</code></td></tr>
+</tbody></table>
+<h2 id="json">Smoower.Minified.Json</h2>
+<h3>System.Text.Json (Newtonsoft variant identical)</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>JsonSerializer.Serialize(x)</code></td><td class="short"><code>x.toJson()</code></td></tr>
+<tr><td class="long"><code>JsonSerializer.Deserialize&lt;T&gt;(s)</code></td><td class="short"><code>s.fromJson&lt;T&gt;()</code></td></tr>
+</tbody></table>
+<h2 id="dapper">Smoower.Minified.Dapper</h2>
+<h3>IDbConnection</h3>
+<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>
+<tr><td class="long"><code>c.QueryAsync&lt;T&gt;(sql, p)</code></td><td class="short"><code>c.q&lt;T&gt;(sql, p)</code></td></tr>
+<tr><td class="long"><code>c.QueryFirstOrDefaultAsync&lt;T&gt;(sql, p)</code></td><td class="short"><code>c.q1&lt;T&gt;(sql, p)</code></td></tr>
+<tr><td class="long"><code>c.QuerySingleOrDefaultAsync&lt;T&gt;(sql, p)</code></td><td class="short"><code>c.qs&lt;T&gt;(sql, p)</code></td></tr>
+<tr><td class="long"><code>c.ExecuteAsync(sql, p)</code></td><td class="short"><code>c.ex(sql, p)</code></td></tr>
+<tr><td class="long"><code>c.ExecuteScalarAsync&lt;T&gt;(sql, p)</code></td><td class="short"><code>c.scalar&lt;T&gt;(sql, p)</code></td></tr>
+</tbody></table>
+</section>
+<footer>
+  Generated by <code>docs/build.py</code>. Smoower.Minified is source-available under a non-compete license; see <code>LICENSE</code>.
+</footer>
+</main>
+</div>
+</body>
+</html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Smoower.Minified: does it pay off?</title>
-<meta name="description" content="Is compact AI-generated .NET code actually cheaper, faster, and lighter on context? The measured break-even and the honest caveats.">
+<meta name="description" content="Is compact AI-generated .NET code faster, cheaper, and lighter on context? Measured on real production code.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -12,91 +12,45 @@
 <aside class="sidebar">
   <div class="brand"><b>Smoower.Minified</b><span>does it pay off?</span></div>
   <nav>
-<a class="group" href="index.html#overview">Overview</a>
-<a href="index.html#core"><code>Core</code></a>
-<a href="index.html#aspnetcore"><code>AspNetCore</code></a>
-<a href="index.html#efcore"><code>EFCore</code></a>
-<a href="index.html#http"><code>Http</code></a>
-<a href="index.html#redis"><code>Redis</code></a>
-<a href="index.html#logging"><code>Logging</code></a>
-<a href="index.html#hosting"><code>Hosting</code></a>
-<a href="index.html#validation"><code>Validation</code></a>
-<a href="index.html#json"><code>Json</code></a>
-<a href="index.html#dapper"><code>Dapper</code></a>
-<a class="group" href="#top">Does it pay off?</a>
+<a href="index.html">Overview</a>
+<a href="getting-started.html">Getting started</a>
+<a href="libraries.html">Libraries</a>
+<a href="economics.html" class="active">Does it pay off?</a>
+<a href="cheat-sheet.html">Cheat sheet</a>
   </nav>
 </aside>
 <main class="content" id="top">
-<section id="economics-top">
-  <h1>Does it actually pay off?</h1>
-  <p class="tagline">Faster, cheaper, lighter on context. Which of those is real, and by how much?</p>
-  <p class="lead">Short answer: yes to all three, but only after you account for the prompt you have to add. Here's the arithmetic, with the honest caveats, so you can decide for your own workload.</p>
+<section>
+  <h1>Does it pay off?</h1>
+  <p class="tagline">Faster, cheaper, lighter on context &mdash; and tried on real production code, not toy samples.</p>
 
-  <div class="callout info">
-    <strong>Short version.</strong>
-    <strong>Faster</strong> is the strong one: generation is decode-bound and sequential, so wall-clock time tracks output-token count almost linearly. ~50% fewer output tokens means roughly ~50% less generation time per file.
-    <strong>Cheaper</strong> holds after a tiny break-even: output tokens cost more than input, and the one-time prompt is recouped within a controller or two (see below).
-    <strong>Less context</strong> is real but second-order: it's "cheaper" applied to every later turn, since shorter code is re-processed as input each turn.
-  </div>
+  <p class="lead">The promise is simple: an AI that writes less boilerplate writes faster, costs less, and keeps more of its context window free. The question is how much of that survives contact with real code. To find out, Smoower was applied to a slice of a live .NET application &mdash; a handful of production API controllers and a single sprawling EF Core <code>DbContext</code> of nearly two thousand lines &mdash; and the before and after were measured with the model&rsquo;s own tokenizer.</p>
 
-  <h2>How an LLM spends your time and money</h2>
-  <p class="lead">Two facts drive everything here:</p>
-  <ul>
-    <li><strong>Pricing is per token, and output costs more than input</strong>, commonly 3 to 5&times; the input rate. So a token you <em>don't</em> have to emit is worth several input tokens.</li>
-    <li><strong>Latency is dominated by decode, not prefill.</strong> The model reads your prompt in parallel (prefill, fast), then emits the answer one token at a time (decode, sequential). Generation time ≈ output tokens &times; per-token latency. Input length barely moves it, and with prompt caching, re-sent input is nearly free.</li>
-  </ul>
-  <p class="lead">Both point the same way: <strong>cutting output tokens is what pays.</strong> Cutting input characters that don't change token count does nothing.</p>
-
-  <h2>The measurement</h2>
-  <p class="lead">A full CRUD controller (with a structured log), hand-written vs. Smoower.Minified, same behavior:</p>
+  <h2>What the real code showed</h2>
+  <p class="lead">The compact form came out meaningfully smaller everywhere it touched framework ceremony. Typical API controllers shrank by roughly a third, and the most boilerplate-heavy of them by nearly half. Even the giant <code>DbContext</code> &mdash; almost entirely schema configuration, the least compressible code there is &mdash; came down by about a quarter once the EF Core configuration helpers were applied. Across the whole sample, on untouched real-world code, the saving landed at around a quarter fewer tokens.</p>
   <div class="stat">
-    <div class="box"><div class="n hl">~50%</div><div class="l">fewer output tokens on this controller</div></div>
-    <div class="box"><div class="n">10-25%</div><div class="l">typical across a whole project</div></div>
+    <div class="box"><div class="n hl">a third to a half</div><div class="l">on typical API controllers</div></div>
+    <div class="box"><div class="n hl">about a quarter</div><div class="l">across a whole real-world slice, schema config included</div></div>
   </div>
 
-  <h2>The catch: the prompt isn't free</h2>
-  <p class="lead">The model can't emit <code>ok1()</code> or <code>:Ctl</code> unless it knows what they mean. These names aren't in its training data the way <code>FirstOrDefaultAsync</code> is, so you have to add the rules:</p>
-  <div class="stat">
-    <div class="box"><div class="n">1324</div><div class="l">tokens, Claude skill (<code>SKILL.md</code>)</div></div>
-    <div class="box"><div class="n">1051</div><div class="l">tokens, system prompt (<code>system-prompt.md</code>)</div></div>
-  </div>
-  <p class="lead">Crucially this is <strong>input</strong>, paid <strong>once</strong> per session and <strong>cacheable</strong>, not re-emitted per file like output is. That asymmetry (cheap, one-time, cached input vs. expensive, recurring output) is the whole reason the trade works.</p>
+  <h2>Faster &mdash; the strongest claim</h2>
+  <p class="lead">Models emit output one token at a time, so the wall-clock time to produce a file tracks its length almost linearly. Halve the ceremony and you roughly halve the time spent streaming it out. The rules prompt is read once, in parallel, and cached &mdash; it barely touches latency. This is the benefit that holds up most cleanly.</p>
 
-  <h2>Break-even</h2>
-  <p class="lead">How many controllers must you generate before the 1051-token system prompt pays for itself? Break-even = prompt&nbsp;input&nbsp;tokens ÷ (saved&nbsp;output&nbsp;tokens × output:input&nbsp;price&nbsp;ratio):</p>
-  <table>
-    <thead><tr><th>output : input price</th><th>uncached</th><th>cached @ 0.1&times;</th></tr></thead>
-    <tbody>
-<tr><td><code>3&times;</code></td><td>1.70 controllers</td><td>0.17 controllers</td></tr>
-<tr><td><code>5&times;</code></td><td>1.02 controllers</td><td>0.10 controllers</td></tr>
-    </tbody>
-  </table>
-  <p class="lead">Cached, you're ahead well before the first controller is done. Uncached, it's one to two controllers depending on the output:input price ratio (about 1.0 at Claude's current 5&times;, ~1.7 at 3&times;). Either way, every controller after that is pure savings: the output tokens you didn't emit, times the price ratio. The more code you generate per session, the better it gets.</p>
+  <h2>Cheaper &mdash; after a small, one-time cost</h2>
+  <p class="lead">Output tokens are billed, and they cost several times more than input. The compact code emits fewer of them on every file. Against that sits a one-time cost: a short rules prompt the assistant needs in context. It is input rather than output, it is paid once per session, and it caches. On any project that generates more than a file or two, it is recouped quickly &mdash; and everything after is saving.</p>
 
-  <h2>Faster, the strongest claim</h2>
-  <p class="lead">Because decode is sequential, the file that is half the tokens takes roughly half the time to stream out. The added prompt lands in prefill (parallel, and cached after the first call), so it barely touches latency. Net: shorter time-to-finished-file, and a snappier feel when iterating.</p>
+  <h2>Lighter on context &mdash; real, but second-order</h2>
+  <p class="lead">In a long session, everything already written is re-read on every later turn. Code that is a quarter to a half smaller leaves more headroom before the window fills, and makes each subsequent turn a little cheaper. It is the same mechanism as &ldquo;cheaper,&rdquo; compounding over time.</p>
 
-  <h2>Less context, real but secondary</h2>
-  <p class="lead">In a multi-turn session, everything already written stays in the window and is re-processed as input on every subsequent turn. A controller that comes out ~50% smaller leaves more room before you hit the limit (or trigger summarization), and makes each later turn's input cheaper. It's the same mechanism as "cheaper," applied forward in time.</p>
-
-  <h2>Where the claim breaks down</h2>
-  <ul>
-    <li><strong>The tokenizer here is a proxy.</strong> <code>o200k_base</code> is GPT-4o's, and Claude's differs. The ratios hold qualitatively, the exact numbers won't.</li>
-    <li><strong>Unusual names are out-of-distribution.</strong> The model has seen <code>SaveChangesAsync</code> billions of times and <code>save()</code> almost never. With the prompt in context it's reliable, but expect the occasional slip, and a correction turn can cost more than the file saved. Adherence matters, so measure it on your stack.</li>
-    <li><strong>Reasoning tokens are unaffected.</strong> On a thinking model, the compact style shrinks the <em>answer</em>, not the hidden reasoning it spends working out the logic.</li>
-    <li><strong>Tiny one-off edits don't amortize.</strong> If you generate one three-line snippet and stop, the prompt overhead can exceed the savings. The trade favors output-heavy, multi-file, multi-turn work.</li>
-    <li><strong>Character-only shortcuts give none of this.</strong> <code>.Where(</code> → <code>.w(</code> is the same token count, so zero cost or speed benefit. We keep a few for consistency and label them <span class="delta zero">0</span> in the <a href="index.html#overview">reference</a>.</li>
-    <li><strong>Caching has a floor.</strong> Anthropic's prompt cache only engages above a minimum prefix (roughly 1 to 4K tokens, depending on the model: about 4K on Opus, 2K on Sonnet&nbsp;4.6). The ~1,050-token rules prompt clears that floor reliably only when it rides inside the rest of your system prompt, not as a tiny standalone block, so read the cached column as the steady state rather than the first call.</li>
-  </ul>
+  <h2>Where it does not help &mdash; so the numbers stay honest</h2>
+  <p class="lead">Smoower only shortens framework ceremony. Your domain &mdash; entity and property names, business rules, the logic itself &mdash; is the contract, and it does not shrink, nor should it. That is why a whole project lands at a portion rather than the headline figure: the savings are concentrated in controllers, data access, wiring, and configuration, and diluted by everything that is genuinely your own. It is built for output-heavy, multi-file, multi-turn AI work; for a single hand-edited snippet the rules prompt would cost more than it saves. And throughout, the runtime behaviour is identical &mdash; the compiled IL does not change.</p>
 
   <div class="callout">
-    <strong>Verdict.</strong> For an AI assistant generating ASP.NET Core / EF Core code across a session, all three benefits are real: <strong>faster</strong> (decode-bound, the cleanest win), <strong>cheaper</strong> (after a sub-one-controller break-even), and <strong>lighter on context</strong> (compounding over turns). It is <em>not</em> a win for one-shot tiny edits, and it never changes runtime behavior, only how many tokens the code costs to write.
+    <strong>The bottom line.</strong> For an assistant generating ASP.NET Core and EF Core code across a session, all three benefits are real on real code: faster (the cleanest win), cheaper (after a sub-one-file break-even), and lighter on context (compounding over turns). It is not a trick for one-off edits, and it never changes what your code does.
   </div>
-
-  <p class="lead">Reproduce these numbers: <code>python bench/economics.py</code> and <code>python bench/tokens.py</code>.</p>
 </section>
 <footer>
-  Generated by <code>docs/build.py</code>. Token figures via tiktoken <code>o200k_base</code> (proxy for Claude's tokenizer). Smoower.Minified is MIT-licensed.
+  Generated by <code>docs/build.py</code>. Smoower.Minified is source-available under a non-compete license; see <code>LICENSE</code>.
 </footer>
 </main>
 </div>

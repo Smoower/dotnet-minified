@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Smoower.Minified.Core\Smoower.Minified.Core.csproj" />
     <ProjectReference Include="..\Smoower.Minified.EFCore\Smoower.Minified.EFCore.csproj" />
+    <ProjectReference Include="..\Smoower.Minified.Hosting\Smoower.Minified.Hosting.csproj" />
   </ItemGroup>
 
 </Project>

@@ -25,6 +25,11 @@ public class ForbiddenTokenCheckerTests
             if (file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}") ||
                 file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}"))
                 continue;
+            // Individual-Samples holds real-world input files (and their .min.cs
+            // comparisons) for the token benchmark, not canonical compact samples,
+            // so they legitimately contain long-form tokens.
+            if (file.Contains("Individual-Samples"))
+                continue;
             if (Path.GetFileName(file).Equals("GlobalUsings.cs", StringComparison.OrdinalIgnoreCase))
                 continue;
             yield return [file];

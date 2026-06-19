@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(SmoowerLibTargets)</TargetFrameworks>
+    <PackageId>Smoower.Minified.EFCore.SqlServer</PackageId>
+    <Description>SQL Server provider shortener for Smoower.Minified: sql&lt;T&gt;(cs) fuses AddDbContext + UseSqlServer for a one-term Program.cs registration.</Description>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.*" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Smoower.Minified.EFCore\Smoower.Minified.EFCore.csproj" />
+  </ItemGroup>
+
+</Project>

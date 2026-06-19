@@ -42,7 +42,18 @@
       "Skill(claude-api)",
       "Skill(claude-api:*)",
       "Bash(python -c \"import yaml; yaml.safe_load\\(open\\('.github/workflows/publish-nuget.yml'\\)\\); print\\('YAML OK'\\)\")",
-      "Bash(python -c \"import yaml; d=yaml.safe_load\\(open\\('.github/workflows/publish-nuget.yml'\\)\\); j=d['jobs']['publish']; print\\('env:', j.get\\('environment'\\)\\); print\\('id-token:', d['permissions'].get\\('id-token'\\)\\); print\\('YAML OK'\\)\")"
+      "Bash(python -c \"import yaml; d=yaml.safe_load\\(open\\('.github/workflows/publish-nuget.yml'\\)\\); j=d['jobs']['publish']; print\\('env:', j.get\\('environment'\\)\\); print\\('id-token:', d['permissions'].get\\('id-token'\\)\\); print\\('YAML OK'\\)\")",
+      "Bash(python -c \"import tiktoken; print\\('tiktoken ok'\\)\")",
+      "Bash(python bench/tokens.py)",
+      "Bash(pip install *)",
+      "Bash(python bench/hotspots.py)",
+      "Bash(python bench/candidates.py)",
+      "Bash(python -m py_compile bench/_tokens.py bench/tokens.py bench/candidates.py bench/hotspots.py)",
+      "Bash(python -c \"import os;k=os.environ.get\\('ANTHROPIC_API_KEY'\\);print\\('set, length',len\\(k\\)\\) if k else print\\('NOT set'\\)\")",
+      "Bash(python docs/build.py)",
+      "Bash(dotnet --version)",
+      "Bash(dotnet build *)",
+      "Bash(dotnet test *)"
     ]
   }
 }

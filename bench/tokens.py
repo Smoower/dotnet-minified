@@ -5,22 +5,25 @@ Compares a hand-written conventional ASP.NET Core controller against the
 Smoower.Minified sample controller (which folds in the former "Ultra" result
 terminators). Both do the SAME work: CRUD + a structured log on create.
 
-Uses tiktoken's o200k_base (the GPT-4o encoding) as a BPE proxy: it is NOT
-Claude's tokenizer, so treat the absolute numbers as illustrative and the
-*ratios* as the takeaway.
+Reports two token counts side by side:
+- tiktoken o200k_base (GPT-4o) - an offline BPE *proxy*, NOT Claude's tokenizer.
+- Claude's real tokenizer (count_tokens API), the authoritative billing count.
 
-    pip install tiktoken
+The Claude column appears only when the anthropic SDK is installed and an API
+key is set; otherwise the tiktoken-only bench runs unchanged. Treat absolute
+numbers as illustrative; the *ratios* vs. vanilla are the takeaway.
+
+    pip install tiktoken anthropic
+    export ANTHROPIC_API_KEY=...            # free count_tokens endpoint
     python bench/tokens.py
 """
 import os
-import tiktoken
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _tokens import CLAUDE_MODEL, approx, claude_available, claude_toks, claude_unavailable_reason, tiktoken_toks
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-enc = tiktoken.get_encoding("o200k_base")
-
-
-def toks(s: str) -> int:
-    return len(enc.encode(s))
 
 
 def read(rel: str) -> str:
@@ -91,9 +94,19 @@ public record UserIn(string Name, string Email);'''
 
 SMOOWER = read("samples/Smoower.Minified.SampleApi/Controllers/UsersController.cs")
 
-base = toks(VANILLA)
-print(f"{'variant':10} {'chars':>6} {'tokens':>7} {'vs vanilla':>11}")
-for name, code in [("vanilla", VANILLA), ("smoower", SMOOWER)]:
-    n = toks(code)
-    pct = "" if name == "vanilla" else f"{(n - base) / base:+.0%}"
-    print(f"{name:10} {len(code):6} {n:7} {pct:>11}")
+use_claude = claude_available()
+
+if use_claude:
+    print(f"claude tokenizer: count_tokens / {CLAUDE_MODEL}")
+else:
+    print(f"claude tokenizer: skipped ({claude_unavailable_reason()})")
+print()
+print("smoower vs. vanilla (identical behaviour: CRUD + a structured log)")
+print("approximate token savings:")
+print()
+
+print(f"  {'tiktoken (proxy)':22} {approx(tiktoken_toks(VANILLA), tiktoken_toks(SMOOWER))}")
+if use_claude:
+    print(f"  {f'claude ({CLAUDE_MODEL})':22} {approx(claude_toks(VANILLA), claude_toks(SMOOWER))}")
+print()
+print("rounded to the nearest 5% on purpose - report the ballpark, not a precise figure.")

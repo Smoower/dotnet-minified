@@ -1,0 +1,24 @@
+Section,Item,What it is,Measured impact (Claude),Applies to,Status,Risk / open question,Next step
+Lever,smoower aliases,Shorten library call-sites in valid C#,~35% off a controller; 10-25% project-wide,Every file with library calls,Shipped,Bounded by the ceremony fraction of a file,Keep extending high-frequency mappings
+Lever,DSL + source generator,[Crud<>] convention expands to a full controller,~80% off smoower / ~90% off vanilla,Boilerplate-only endpoints,Designed not built,Escape-hatch correctness + 2 design gaps,Build Roslyn incremental generator
+Lever,Cryptic / numeric encoding,Packed-string or numeric opcode form,No gain over readable DSL; numeric measured worse,-,Rejected (disproven),-,Do not build
+Lever,Prompt caching (rules),Cache the skill/system-prompt prefix,~90% off the one-time rules input,Every session,External lever,Cache floor ~1-4k tokens,Document in economics
+Lever,Batch API,Async non-interactive generation,50% off input+output,Bulk generation,External lever,Not latency-friendly,Document
+Component,smoower libraries,Shipped NuGet packages + Claude skill,Delivers the alias lever,-,Shipped,-,Maintain
+Component,Source generator (controllers),Roslyn incremental generator for [Crud<>],Unlocks the DSL lever,-,Not built,Generator complexity; error mapping,PRIORITY 1 - build first: [Crud<>] DI/CRUD happy path compiling
+Surface,Startup ([WebApp]/AppSetup),Attributes expand to the host bootstrap,~25% on Program.cs (one-time),App init,Low priority,Once-per-project; mostly cheap tokens,Build after the controller generator
+Surface,Auto-DbSet from [Crud<>],Generate DbSets + registration from declared entities,Small token + consistency,DbContext,Low priority,Once-per-project,Build after the controller generator
+Component,VSCode dual-view,Virtual files - terse on disk readable on demand,The readability moat,-,Not built,-,Prototype hover + virtual document
+Component,Debug source-maps,Map errors/breakpoints back to authored form,The v2 moat,-,Not built,Hardest single piece,Defer to v2
+Component,CLI expand,Eject DSL/smoower to full C#,Debugging / eject hatch,-,Not built,-,Cheap once generator exists
+Component,Benchmark suite,tokens/hotspots/candidates/encodings/fluency,The evidence base,-,Done,Proxy vs Claude reconciled,Add compiler-in-loop to fluency
+Finding,DSL declaration reliability,Claude emits [Crud<>]/knobs/keys/hooks,0/30 fell back to vanilla,-,Green,-,Proceed with the generator bet
+Finding,Escape-hatch vocab,Hand-written overrides invent helper names,4/15 tasks drifted,-,Yellow (fixable),Artifact of a thin test prompt,Ship real vocab + compiler-in-loop
+Finding,Async side effect,partial void cannot await; await dropped silently,async_hook task,-,Red gap,Silent runtime bug,Fix: OnCreatedAsync (Task-returning hook)
+Finding,Decorate generated action,No way to attribute a generated verb,auth task,-,Red gap,Forces a full manual override,Fix: [CrudAuth] per-verb attributes
+Decision,Encoding readability,Readable DSL vs cryptic/numeric,Readable ties-or-beats cryptic on Claude,-,Settled,-,Readable wins; VSCode is for ergonomics not compression
+Decision,Default action set,How much [Crud<>] implies,Bigger imply = bigger win + more to teach,-,Open,Full CRUD vs opt-in,Lock before generator spike
+Decision,Compiler in loop,dotnet build validates generated output,Catches every body-level slip seen in eval,-,Recommended,-,Make it part of the generation workflow
+Decision,Data-annotation aliases,[req]/[ml(100)]/[len(100)] attribute shorteners,+3-4 tokens/use (measured),Model/DTO attributes,Worth it,-,Add as attribute aliases like [HG]/[P200]
+Decision,Generic micro-aliases,.ts()/.lo()/s.has() string-method shorteners,+0-1 token on ubiquitous methods,-,Rejected,Fluency miss + teach/ship cost net-negative,Skip - only alias names >=3 subtokens AND not reflex-emitted
+Decision,Build priority,Order of the generator surfaces,-,-,Settled,-,Controller generator first; startup + auto-DbSet after

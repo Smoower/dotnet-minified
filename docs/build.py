@@ -1,406 +1,252 @@
 #!/usr/bin/env python3
-"""Generate docs/index.html from the per-library mapping tables.
+"""Generate the Smoower.Minified documentation site (multi-page, static).
 
-Single source of truth for the documentation site. Each mapping row carries a
-realistic short call-site and its long-form equivalent; token deltas are computed
-with tiktoken's o200k_base (a proxy for Claude's tokenizer - read the deltas, not
-absolutes). Re-run after changing any helper:
+Single source of truth for the docs. No token computation here - the cheat sheet
+lists what each long form becomes, nothing more. Re-run after changing a helper:
 
-    pip install tiktoken
     python docs/build.py
 """
 import html
 import os
 
-import tiktoken
-
-enc = tiktoken.get_encoding("o200k_base")
 HERE = os.path.dirname(os.path.abspath(__file__))
-
-
-def d(short, long):
-    return len(enc.encode(long)) - len(enc.encode(short))
-
-
-# (short, long, note) — note is optional
-LIBS = [
-    {
-        "id": "core",
-        "name": "Smoower.Minified.Core",
-        "blurb": "Framework-agnostic guards and the base type aliases. Zero web/EF dependency, so every other package can sit on top of it.",
-        "deps": "Microsoft.Extensions.Configuration.Abstractions",
-        "groups": [
-            ("Guards", [
-                ("s.nil()", "string.IsNullOrWhiteSpace(s)", ""),
-                ("s.emp()", "string.IsNullOrEmpty(s)", ""),
-                ("items.none()", "!items.Any()", ""),
-            ]),
-            ("Aliases", [
-                ("CT ct", "CancellationToken ct", "alias"),
-                ("Cfg cfg", "IConfiguration cfg", "alias"),
-            ]),
-        ],
-    },
-    {
-        "id": "aspnetcore",
-        "name": "Smoower.Minified.AspNetCore",
-        "blurb": "Compact MVC attributes, type aliases, and the result-fusing terminators that turn a controller action into a single expression. Depends on EFCore so the terminators can run queries, and keeps EFCore itself web-free.",
-        "deps": "ASP.NET Core (FrameworkReference) · Smoower.Minified.EFCore · Smoower.Minified.Core",
-        "groups": [
-            ("Attributes", [
-                ("[API]", "[ApiController]", ""),
-                ('[RT("api/users")]', '[Route("api/users")]', ""),
-                ('[HG("{id}")]', '[HttpGet("{id}")]', ""),
-                ("[HPO]", "[HttpPost]", ""),
-                ("[HPU]", "[HttpPut]", ""),
-                ("[HPA]", "[HttpPatch]", ""),
-                ('[HD("{id}")]', '[HttpDelete("{id}")]', ""),
-                ("[AUTH]", "[Authorize]", ""),
-                ("[ANON]", "[AllowAnonymous]", ""),
-                ("[FB]", "[FromBody]", ""),
-                ("[FR]", "[FromRoute]", ""),
-                ("[FQ]", "[FromQuery]", ""),
-                ("[FH]", "[FromHeader]", ""),
-            ]),
-            ("Aliases", [
-                (":Ctl", ": ControllerBase", "alias"),
-                ("Res", "IActionResult", "alias"),
-                ("AR", "ActionResult", "alias (non-generic)"),
-                ("Tr", "Task<IActionResult>", "closed-generic alias"),
-            ]),
-            ("Result-fusing terminators", [
-                ("q.ok1()", "var x=await q.FirstOrDefaultAsync();return x==null?NotFound():Ok(x);", "200 row / 404"),
-                ("q.okl()", "Ok(await q.ToListAsync())", "200 list"),
-                ("q.okc()", "Ok(await q.CountAsync())", "200 count"),
-                ("set.okId(id)", "var x=await set.FindAsync(id);return x==null?NotFound():Ok(x);", "200 row / 404"),
-                ("db.okAdd(e)", "db.Add(e);await db.SaveChangesAsync();return Ok(e);", "200 entity"),
-                ("db.okNew(e)", "db.Add(e);await db.SaveChangesAsync();return CreatedAtAction(nameof(Get), new{id=e.Id}, e);", "add+save, 201"),
-                ("value.created()", "CreatedAtAction(nameof(Get), new { id = value.Id }, value)", "201 with body"),
-                ("db.delById<User>(id)", "var x=await db.Set<User>().FindAsync(id);if(x==null)return NotFound();db.Remove(x);await db.SaveChangesAsync();return NoContent();", "204 / 404"),
-            ]),
-            ("Response-type attributes (Swagger)", [
-                ("[P200]", "[ProducesResponseType(StatusCodes.Status200OK)]", ""),
-                ("[P200<UserDto>]", "[ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]", "generic"),
-                ("[P201]", "[ProducesResponseType(StatusCodes.Status201Created)]", ""),
-                ("[P400]", "[ProducesResponseType(StatusCodes.Status400BadRequest)]", ""),
-                ("[P404]", "[ProducesResponseType(StatusCodes.Status404NotFound)]", ""),
-            ]),
-        ],
-    },
-    {
-        "id": "efcore",
-        "name": "Smoower.Minified.EFCore",
-        "blurb": "EF Core query and write shorteners. Predicates and projections take Expression<Func<...>>, so EF Core still translates to SQL. Async is the unmarked default, and sync gets an S suffix.",
-        "deps": "Microsoft.EntityFrameworkCore (8.x / 9.x / 10.x per TFM) · Smoower.Minified.Core",
-        "groups": [
-            ("Query (composition)", [
-                ("q.w(x=>x.Id==id)", "q.Where(x=>x.Id==id)", ""),
-                ("q.s(x=>x.Name)", "q.Select(x=>x.Name)", ""),
-                ("q.ob(x=>x.Name)", "q.OrderBy(x=>x.Name)", ""),
-                ("q.obd(x=>x.Name)", "q.OrderByDescending(x=>x.Name)", ""),
-                ("q.tb(x=>x.Name)", "q.ThenBy(x=>x.Name)", ""),
-                ("q.tbd(x=>x.Name)", "q.ThenByDescending(x=>x.Name)", ""),
-                ("q.sk(10)", "q.Skip(10)", ""),
-                ("q.tk(10)", "q.Take(10)", ""),
-                ("q.nt()", "q.AsNoTracking()", ""),
-                ("q.inc(x=>x.Orders)", "q.Include(x=>x.Orders)", ""),
-            ]),
-            ("Query (async terminators)", [
-                ("q.lst()", "q.ToListAsync()", ""),
-                ("q.one()", "q.FirstOrDefaultAsync()", ""),
-                ("q.single()", "q.SingleOrDefaultAsync()", ""),
-                ("q.any()", "q.AnyAsync()", ""),
-                ("q.cnt()", "q.CountAsync()", ""),
-            ]),
-            ("Write (async)", [
-                ("set.id(key)", "set.FindAsync(key)", ""),
-                ("await db.save()", "await db.SaveChangesAsync()", ""),
-                ("await db.add(e)", "db.Add(e);await db.SaveChangesAsync();", "returns e"),
-                ("await db.upd(e)", "db.Update(e);await db.SaveChangesAsync();", "returns e"),
-                ("await db.del(e)", "db.Remove(e);await db.SaveChangesAsync();", ""),
-            ]),
-            ("Sync variants (S suffix)", [
-                ("q.lstS()", "q.ToList()", "no token win"),
-                ("q.oneS()", "q.FirstOrDefault()", "no token win"),
-                ("db.saveS()", "db.SaveChanges()", "no token win"),
-                ("set.idS(key)", "set.Find(key)", "no token win"),
-            ]),
-        ],
-    },
-    {
-        "id": "http",
-        "name": "Smoower.Minified.Http",
-        "blurb": "HttpClient JSON helpers over System.Net.Http.Json.",
-        "deps": "(framework only)",
-        "groups": [
-            ("HttpClient", [
-                ("c.getJson<T>(url)", "c.GetFromJsonAsync<T>(url)", ""),
-                ("c.postJson(url, body)", "c.PostAsJsonAsync(url, body)", ""),
-                ("c.putJson(url, body)", "c.PutAsJsonAsync(url, body)", ""),
-                ("c.patchJson(url, body)", "c.PatchAsJsonAsync(url, body)", ""),
-                ("c.del(url)", "c.DeleteAsync(url)", ""),
-            ]),
-        ],
-    },
-    {
-        "id": "redis",
-        "name": "Smoower.Minified.Redis",
-        "blurb": "StackExchange.Redis helpers on IDatabase, plus JSON value helpers with optional TTL.",
-        "deps": "StackExchange.Redis",
-        "groups": [
-            ("IDatabase", [
-                ("db.get(k)", "db.StringGetAsync(k)", ""),
-                ("db.set(k, v)", "db.StringSetAsync(k, v)", ""),
-                ("db.set(k, v, ttl)", "db.StringSetAsync(k, v, ttl)", ""),
-                ("db.del(k)", "db.KeyDeleteAsync(k)", ""),
-                ("db.incr(k)", "db.StringIncrementAsync(k)", ""),
-                ("db.getJson<T>(k)", "JsonSerializer.Deserialize<T>(await db.StringGetAsync(k))", "get + deserialize"),
-                ("db.setJson(k, v)", "db.StringSetAsync(k, JsonSerializer.Serialize(v))", "serialize + set"),
-            ]),
-        ],
-    },
-    {
-        "id": "logging",
-        "name": "Smoower.Minified.Logging",
-        "blurb": "ILogger helpers. Declared on the non-generic ILogger base, so they apply to ILogger<T> too (which cannot be aliased).",
-        "deps": "Microsoft.Extensions.Logging.Abstractions",
-        "groups": [
-            ("ILogger", [
-                ('log.inf("created {Id}", id)', 'log.LogInformation("created {Id}", id)', ""),
-                ('log.wrn("slow {Ms}", ms)', 'log.LogWarning("slow {Ms}", ms)', ""),
-                ('log.err("failed {Id}", id)', 'log.LogError("failed {Id}", id)', ""),
-                ('log.err(ex, "failed")', 'log.LogError(ex, "failed")', ""),
-                ('log.dbg("state {S}", s)', 'log.LogDebug("state {S}", s)', ""),
-            ]),
-        ],
-    },
-    {
-        "id": "hosting",
-        "name": "Smoower.Minified.Hosting",
-        "blurb": "Chainable DI registration helpers on IServiceCollection.",
-        "deps": "Microsoft.Extensions.DependencyInjection.Abstractions",
-        "groups": [
-            ("IServiceCollection", [
-                ("svc.scoped<Foo>()", "svc.AddScoped<Foo>()", ""),
-                ("svc.scoped<IFoo, Foo>()", "svc.AddScoped<IFoo, Foo>()", ""),
-                ("svc.single<Bar>()", "svc.AddSingleton<Bar>()", ""),
-                ("svc.trans<Baz>()", "svc.AddTransient<Baz>()", ""),
-            ]),
-        ],
-    },
-    {
-        "id": "validation",
-        "name": "Smoower.Minified.Validation",
-        "blurb": "Compact FluentValidation rule shorteners. Inherit MiniValidator<T> to get the rule/req entry points, then chain the rule helpers.",
-        "deps": "FluentValidation",
-        "groups": [
-            ("Entry points (on MiniValidator<T>)", [
-                ("req(x=>x.Name)", "RuleFor(x=>x.Name).NotEmpty()", "NotEmpty rule"),
-                ("rule(x=>x.Age)", "RuleFor(x=>x.Age)", "plain rule"),
-            ]),
-            ("Rule shorteners", [
-                ("r.max(100)", "r.MaximumLength(100)", ""),
-                ("r.min(2)", "r.MinimumLength(2)", ""),
-                ("r.len(2, 100)", "r.Length(2, 100)", ""),
-                ("r.email()", "r.EmailAddress()", ""),
-                ("r.matches(pattern)", "r.Matches(pattern)", ""),
-                ("r.gt(0)", "r.GreaterThan(0)", ""),
-                ("r.lt(10)", "r.LessThan(10)", ""),
-                ("r.gte(1)", "r.GreaterThanOrEqualTo(1)", ""),
-                ("r.lte(120)", "r.LessThanOrEqualTo(120)", ""),
-                ("r.rng(1, 5)", "r.InclusiveBetween(1, 5)", ""),
-            ]),
-        ],
-    },
-    {
-        "id": "json",
-        "name": "Smoower.Minified.Json",
-        "blurb": "System.Text.Json round-trip helpers. No extra dependency. For Newtonsoft, the Smoower.Minified.Json.Newtonsoft package has the identical surface in a different namespace - import one.",
-        "deps": "(framework only) · Newtonsoft variant: Newtonsoft.Json",
-        "groups": [
-            ("System.Text.Json", [
-                ("x.toJson()", "JsonSerializer.Serialize(x)", ""),
-                ("x.toJson(pretty: true)", "JsonSerializer.Serialize(x, new JsonSerializerOptions { WriteIndented = true })", ""),
-                ("s.fromJson<T>()", "JsonSerializer.Deserialize<T>(s)", ""),
-            ]),
-            ("Newtonsoft.Json (same names)", [
-                ("x.toJson()", "JsonConvert.SerializeObject(x)", ""),
-                ("s.fromJson<T>()", "JsonConvert.DeserializeObject<T>(s)", ""),
-            ]),
-        ],
-    },
-    {
-        "id": "dapper",
-        "name": "Smoower.Minified.Dapper",
-        "blurb": "Compact Dapper helpers on IDbConnection, for projects not using EF Core. Thin async wrappers, and you pass Dapper's usual anonymous-type parameter bag.",
-        "deps": "Dapper",
-        "groups": [
-            ("IDbConnection", [
-                ("c.q<T>(sql, p)", "c.QueryAsync<T>(sql, p)", "many rows"),
-                ("c.q1<T>(sql, p)", "c.QueryFirstOrDefaultAsync<T>(sql, p)", "first or default"),
-                ("c.qs<T>(sql, p)", "c.QuerySingleOrDefaultAsync<T>(sql, p)", "single or default"),
-                ("c.ex(sql, p)", "c.ExecuteAsync(sql, p)", "rows affected"),
-                ("c.scalar<T>(sql, p)", "c.ExecuteScalarAsync<T>(sql, p)", "scalar value"),
-            ]),
-        ],
-    },
-]
 
 
 def esc(s):
     return html.escape(s)
 
 
-def delta_cell(short, long):
-    n = d(short, long)
-    cls = "pos" if n > 0 else "zero"
-    sign = f"+{n}" if n > 0 else "0"
-    return f'<span class="delta {cls}">{sign}</span>'
+# ── Package catalogue (Libraries page) ──────────────────────────────────────
+PACKAGES = [
+    ("Smoower.Minified.Core", "Guards (nil/emp/none) and the base type aliases. Zero web or EF dependency, so everything else sits on top of it."),
+    ("Smoower.Minified.AspNetCore", "Compact MVC attributes, type aliases, and the result-fusing terminators that turn a controller action into a single expression."),
+    ("Smoower.Minified.EFCore", "EF Core query and write helpers, plus model-configuration helpers for OnModelCreating."),
+    ("Smoower.Minified.Extensions", "Helpers over core .NET / BCL types: an injectable Clock, DateTime and TimeSpan shorteners, and environment-variable access."),
+    ("Smoower.Minified.Hosting", "Dependency-injection registration and resolution helpers over IServiceCollection / IServiceProvider."),
+    ("Smoower.Minified.Logging", "ILogger helpers (inf/wrn/err/dbg), declared on the non-generic base so they apply to ILogger<T> too."),
+    ("Smoower.Minified.Http", "HttpClient JSON helpers over System.Net.Http.Json."),
+    ("Smoower.Minified.Validation", "Compact FluentValidation rule shorteners via MiniValidator<T>."),
+    ("Smoower.Minified.Json", "System.Text.Json round-trip helpers. A Newtonsoft variant ships the identical surface."),
+    ("Smoower.Minified.Redis", "StackExchange.Redis helpers on IDatabase, with JSON value helpers."),
+    ("Smoower.Minified.Dapper", "Compact Dapper helpers on IDbConnection for projects not using EF Core."),
+    ("Smoower.Minified.EFCore.* providers", "Thin registration helpers for the InMemory, Sqlite, Npgsql, and SqlServer providers (mem/sqlite/pg/sql)."),
+]
 
 
-def render_table(rows):
-    out = ['<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>']
-    for short, long, note in rows:
-        out.append(
-            f'<tr><td class="short"><code>{esc(short)}</code></td>'
-            f'<td class="long"><code>{esc(long)}</code></td>'
-            f'<td>{delta_cell(short, long)}</td>'
-            f'<td>{esc(note)}</td></tr>'
-        )
-    out.append("</tbody></table>")
-    return "\n".join(out)
+# ── Cheat-sheet mappings (long form, compact form) per package ──────────────
+LIBS = [
+    ("Smoower.Minified.Core", [
+        ("Guards", [
+            ("string.IsNullOrWhiteSpace(s)", "s.nil()"),
+            ("string.IsNullOrEmpty(s)", "s.emp()"),
+            ("!items.Any()", "items.none()"),
+        ]),
+        ("Aliases", [
+            ("CancellationToken ct", "CT ct"),
+            ("IConfiguration cfg", "Cfg cfg"),
+        ]),
+    ]),
+    ("Smoower.Minified.AspNetCore", [
+        ("Attributes", [
+            ("[ApiController]", "[API]"),
+            ('[Route("api/users")]', '[RT("api/users")]'),
+            ('[HttpGet("{id}")]', '[HG("{id}")]'),
+            ("[HttpPost]", "[HPO]"),
+            ("[HttpPut]", "[HPU]"),
+            ("[HttpPatch]", "[HPA]"),
+            ('[HttpDelete("{id}")]', '[HD("{id}")]'),
+            ("[Authorize]", "[AUTH]"),
+            ("[AllowAnonymous]", "[ANON]"),
+            ("[FromBody]", "[FB]"),
+            ("[FromRoute]", "[FR]"),
+            ("[FromQuery]", "[FQ]"),
+            ("[FromHeader]", "[FH]"),
+        ]),
+        ("Aliases", [
+            (": ControllerBase", ":Ctl"),
+            ("IActionResult", "Res"),
+            ("ActionResult", "AR"),
+            ("Task<IActionResult>", "Tr"),
+        ]),
+        ("Result-fusing terminators", [
+            ("var x=await q.FirstOrDefaultAsync();return x==null?NotFound():Ok(x);", "q.ok1()"),
+            ("Ok(await q.ToListAsync())", "q.okl()"),
+            ("Ok(await q.CountAsync())", "q.okc()"),
+            ("var x=await set.FindAsync(id);return x==null?NotFound():Ok(x);", "set.okId(id)"),
+            ("db.Add(e);await db.SaveChangesAsync();return Ok(e);", "db.okAdd(e)"),
+            ("db.Add(e);await db.SaveChangesAsync();return CreatedAtAction(...);", "db.okNew(e)"),
+            ("CreatedAtAction(nameof(Get), new { id = value.Id }, value)", "value.created()"),
+            ("FindAsync+NotFound+Remove+SaveChanges+NoContent", "db.delById<User>(id)"),
+        ]),
+        ("Response-type attributes (Swagger)", [
+            ("[ProducesResponseType(StatusCodes.Status200OK)]", "[P200]"),
+            ("[ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]", "[P200<UserDto>]"),
+            ("[ProducesResponseType(StatusCodes.Status201Created)]", "[P201]"),
+            ("[ProducesResponseType(StatusCodes.Status400BadRequest)]", "[P400]"),
+            ("[ProducesResponseType(StatusCodes.Status404NotFound)]", "[P404]"),
+        ]),
+    ]),
+    ("Smoower.Minified.EFCore", [
+        ("Query — composition", [
+            ("q.Where(x=>x.Id==id)", "q.w(x=>x.Id==id)"),
+            ("q.Select(x=>x.Name)", "q.s(x=>x.Name)"),
+            ("q.OrderBy(x=>x.Name)", "q.ob(x=>x.Name)"),
+            ("q.OrderByDescending(x=>x.Name)", "q.obd(x=>x.Name)"),
+            ("q.ThenBy(x=>x.Name)", "q.tb(x=>x.Name)"),
+            ("q.ThenByDescending(x=>x.Name)", "q.tbd(x=>x.Name)"),
+            ("q.Skip(10)", "q.sk(10)"),
+            ("q.Take(10)", "q.tk(10)"),
+            ("q.AsNoTracking()", "q.nt()"),
+            ("q.AsNoTrackingWithIdentityResolution()", "q.ntir()"),
+            ("q.Include(x=>x.Orders)", "q.inc(x=>x.Orders)"),
+            ("q.ThenInclude(x=>x.Lines)", "q.tinc(x=>x.Lines)"),
+            ("q.GroupBy(x=>x.Status)", "q.gb(x=>x.Status)"),
+        ]),
+        ("Query — async terminators", [
+            ("q.ToListAsync()", "q.lst()"),
+            ("q.FirstOrDefaultAsync()", "q.one()"),
+            ("q.SingleOrDefaultAsync()", "q.single()"),
+            ("q.AnyAsync()", "q.any()"),
+            ("q.CountAsync()", "q.cnt()"),
+            ("q.MaxAsync(x=>x.Total)", "q.max(x=>x.Total)"),
+            ("q.MinAsync(x=>x.Total)", "q.min(x=>x.Total)"),
+        ]),
+        ("Write (async; S-suffixed sync variants exist)", [
+            ("set.FindAsync(key)", "set.id(key)"),
+            ("await db.SaveChangesAsync()", "await db.save()"),
+            ("db.Add(e);await db.SaveChangesAsync();", "await db.add(e)"),
+            ("db.Update(e);await db.SaveChangesAsync();", "await db.upd(e)"),
+            ("db.Remove(e);await db.SaveChangesAsync();", "await db.del(e)"),
+        ]),
+        ("Model config (OnModelCreating)", [
+            ("modelBuilder.Entity<T>().HasQueryFilter(f)", "mb.qf<T>(f)"),
+            ("entity.HasKey(e=>e.Id)", "entity.key(e=>e.Id)"),
+            ("entity.HasIndex(e=>e.Email)", "entity.idx(e=>e.Email)"),
+            (".IsUnique()", ".uniq()"),
+            ("entity.Property(e=>e.Name)", "entity.p(e=>e.Name)"),
+            (".IsRequired()", ".req()"),
+            (".HasMaxLength(100)", ".max(100)"),
+            (".HasConversion<string>()", ".conv<string>()"),
+            ("entity.HasOne(e=>e.Author)", "entity.one(e=>e.Author)"),
+            (".WithMany(a=>a.Books)", ".many(a=>a.Books)"),
+            ("entity.HasMany(e=>e.Books)", "entity.hasM(e=>e.Books)"),
+            (".WithOne(b=>b.Author)", ".wOne(b=>b.Author)"),
+            (".HasForeignKey(e=>e.AuthorId)", ".fk(e=>e.AuthorId)"),
+            (".OnDelete(DeleteBehavior.Cascade)", ".cascade()"),
+            (".OnDelete(DeleteBehavior.Restrict)", ".restrict()"),
+            (".OnDelete(DeleteBehavior.SetNull)", ".setNull()"),
+            (".OnDelete(DeleteBehavior.ClientSetNull)", ".clientSetNull()"),
+            (".OnDelete(behavior)", ".onDel(behavior)"),
+        ]),
+    ]),
+    ("Smoower.Minified.Extensions", [
+        ("Clock (injectable) / Clk (static)", [
+            ("DateTime.UtcNow", "clock.utc"),
+            ("DateTime.Now", "clock.now"),
+            ("DateOnly.FromDateTime(DateTime.UtcNow)", "clock.today"),
+            ("DateTimeOffset.UtcNow.ToUnixTimeSeconds()", "clock.unix"),
+        ]),
+        ("DateTime", [
+            ("dt.ToUniversalTime()", "dt.utc()"),
+            ("dt.ToShortDateString()", "dt.sd()"),
+            ("dt.ToLongDateString()", "dt.ld()"),
+            ("dt.ToShortTimeString()", "dt.st()"),
+            ("dt.ToLongTimeString()", "dt.lt()"),
+        ]),
+        ("TimeSpan factories (on int)", [
+            ("TimeSpan.FromMilliseconds(250)", "250.ms()"),
+            ("TimeSpan.FromSeconds(30)", "30.secs()"),
+            ("TimeSpan.FromMinutes(5)", "5.mins()"),
+            ("TimeSpan.FromHours(2)", "2.hrs()"),
+            ("TimeSpan.FromDays(7)", "7.days()"),
+        ]),
+        ("Environment", [
+            ('Environment.GetEnvironmentVariable("X")', 'Env.get("X")'),
+            ('Environment.SetEnvironmentVariable("X", v)', 'Env.set("X", v)'),
+        ]),
+    ]),
+    ("Smoower.Minified.Hosting", [
+        ("IServiceCollection / IServiceProvider", [
+            ("services.AddScoped<IFoo, Foo>()", "svc.scoped<IFoo, Foo>()"),
+            ("services.AddSingleton<Bar>()", "svc.single<Bar>()"),
+            ("services.AddTransient<Baz>()", "svc.trans<Baz>()"),
+            ("provider.GetRequiredService<T>()", "provider.svc<T>()"),
+        ]),
+    ]),
+    ("Smoower.Minified.Logging", [
+        ("ILogger", [
+            ('log.LogInformation("created {Id}", id)', 'log.inf("created {Id}", id)'),
+            ('log.LogWarning("slow {Ms}", ms)', 'log.wrn("slow {Ms}", ms)'),
+            ('log.LogError("failed {Id}", id)', 'log.err("failed {Id}", id)'),
+            ('log.LogDebug("state {S}", s)', 'log.dbg("state {S}", s)'),
+        ]),
+    ]),
+    ("Smoower.Minified.Http", [
+        ("HttpClient", [
+            ("c.GetFromJsonAsync<T>(url)", "c.getJson<T>(url)"),
+            ("c.PostAsJsonAsync(url, body)", "c.postJson(url, body)"),
+            ("c.PutAsJsonAsync(url, body)", "c.putJson(url, body)"),
+            ("c.PatchAsJsonAsync(url, body)", "c.patchJson(url, body)"),
+            ("c.DeleteAsync(url)", "c.del(url)"),
+        ]),
+    ]),
+    ("Smoower.Minified.Validation", [
+        ("Rules (on MiniValidator<T>)", [
+            ("RuleFor(x=>x.Name).NotEmpty()", "req(x=>x.Name)"),
+            ("RuleFor(x=>x.Age)", "rule(x=>x.Age)"),
+            ("r.MaximumLength(100)", "r.max(100)"),
+            ("r.MinimumLength(2)", "r.min(2)"),
+            ("r.EmailAddress()", "r.email()"),
+            ("r.GreaterThan(0)", "r.gt(0)"),
+            ("r.LessThanOrEqualTo(120)", "r.lte(120)"),
+            ("r.InclusiveBetween(1, 5)", "r.rng(1, 5)"),
+        ]),
+    ]),
+    ("Smoower.Minified.Json", [
+        ("System.Text.Json (Newtonsoft variant identical)", [
+            ("JsonSerializer.Serialize(x)", "x.toJson()"),
+            ("JsonSerializer.Deserialize<T>(s)", "s.fromJson<T>()"),
+        ]),
+    ]),
+    ("Smoower.Minified.Dapper", [
+        ("IDbConnection", [
+            ("c.QueryAsync<T>(sql, p)", "c.q<T>(sql, p)"),
+            ("c.QueryFirstOrDefaultAsync<T>(sql, p)", "c.q1<T>(sql, p)"),
+            ("c.QuerySingleOrDefaultAsync<T>(sql, p)", "c.qs<T>(sql, p)"),
+            ("c.ExecuteAsync(sql, p)", "c.ex(sql, p)"),
+            ("c.ExecuteScalarAsync<T>(sql, p)", "c.scalar<T>(sql, p)"),
+        ]),
+    ]),
+]
+
+
+# ── Rendering ───────────────────────────────────────────────────────────────
+NAV = [
+    ("index.html", "Overview"),
+    ("getting-started.html", "Getting started"),
+    ("libraries.html", "Libraries"),
+    ("economics.html", "Does it pay off?"),
+    ("cheat-sheet.html", "Cheat sheet"),
+]
 
 
 def render_nav(current):
-    # Same-page anchors on the current page; cross-page links otherwise.
-    def ix(anchor):
-        return f"#{anchor}" if current == "index" else f"index.html#{anchor}"
-
-    out = [f'<a class="group" href="{ix("overview")}">Overview</a>']
-    for lib in LIBS:
-        short_name = lib["name"].replace("Smoower.Minified.", "")
-        out.append(f'<a href="{ix(lib["id"])}"><code>{esc(short_name)}</code></a>')
-    econ_href = "#top" if current == "economics" else "economics.html"
-    out.append(f'<a class="group" href="{econ_href}">Does it pay off?</a>')
-    return "\n".join(out)
-
-
-def render_libs():
     out = []
-    for lib in LIBS:
-        out.append(f'<section id="{lib["id"]}">')
-        out.append(f'<h2>{esc(lib["name"])}</h2>')
-        out.append(f'<p class="lead">{esc(lib["blurb"])}</p>')
-        out.append(f'<p class="deps"><strong>Depends on:</strong> {esc(lib["deps"])}</p>')
-        out.append(
-            f'<pre>&lt;PackageReference Include="{esc(lib["name"])}" Version="0.1.0" /&gt;</pre>'
-        )
-        for title, rows in lib["groups"]:
-            out.append(f"<h3>{esc(title)}</h3>")
-            out.append(render_table(rows))
-        out.append("</section>")
+    for href, label in NAV:
+        cls = ' class="active"' if href == current else ""
+        out.append(f'<a href="{href}"{cls}>{esc(label)}</a>')
     return "\n".join(out)
 
 
-# --- Economics page: measured inputs -------------------------------------
-ROOT = os.path.dirname(HERE)
-
-
-def _read_root(rel):
-    with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
-        return f.read()
-
-
-def _toks(s):
-    return len(enc.encode(s))
-
-
-SKILL_T = _toks(_read_root(".claude/skills/smoower-minified/SKILL.md"))
-SYSP_T = _toks(_read_root("prompts/system-prompt.md"))
-VAN, SMO = 413, 207  # from bench/tokens.py
-SAVED = VAN - SMO
-
-
-def render_economics():
-    # Break-even (controllers) to recoup the system prompt: input cost vs output savings.
-    rows = []
-    for r in (3, 5):
-        uncached = SYSP_T / (SAVED * r)
-        cached = (SYSP_T * 0.1) / (SAVED * r)
-        rows.append(
-            f"<tr><td><code>{r}&times;</code></td>"
-            f"<td>{uncached:.2f} controllers</td>"
-            f"<td>{cached:.2f} controllers</td></tr>"
+def map_table(rows):
+    out = ['<table><thead><tr><th>Long form</th><th>Compact</th></tr></thead><tbody>']
+    for long, short in rows:
+        out.append(
+            f'<tr><td class="long"><code>{esc(long)}</code></td>'
+            f'<td class="short"><code>{esc(short)}</code></td></tr>'
         )
-    breakeven_rows = "\n".join(rows)
-
-    return f"""<section id="economics-top">
-  <h1>Does it actually pay off?</h1>
-  <p class="tagline">Faster, cheaper, lighter on context. Which of those is real, and by how much?</p>
-  <p class="lead">Short answer: yes to all three, but only after you account for the prompt you have to add. Here's the arithmetic, with the honest caveats, so you can decide for your own workload.</p>
-
-  <div class="callout info">
-    <strong>Short version.</strong>
-    <strong>Faster</strong> is the strong one: generation is decode-bound and sequential, so wall-clock time tracks output-token count almost linearly. ~50% fewer output tokens means roughly ~50% less generation time per file.
-    <strong>Cheaper</strong> holds after a tiny break-even: output tokens cost more than input, and the one-time prompt is recouped within a controller or two (see below).
-    <strong>Less context</strong> is real but second-order: it's "cheaper" applied to every later turn, since shorter code is re-processed as input each turn.
-  </div>
-
-  <h2>How an LLM spends your time and money</h2>
-  <p class="lead">Two facts drive everything here:</p>
-  <ul>
-    <li><strong>Pricing is per token, and output costs more than input</strong>, commonly 3 to 5&times; the input rate. So a token you <em>don't</em> have to emit is worth several input tokens.</li>
-    <li><strong>Latency is dominated by decode, not prefill.</strong> The model reads your prompt in parallel (prefill, fast), then emits the answer one token at a time (decode, sequential). Generation time ≈ output tokens &times; per-token latency. Input length barely moves it, and with prompt caching, re-sent input is nearly free.</li>
-  </ul>
-  <p class="lead">Both point the same way: <strong>cutting output tokens is what pays.</strong> Cutting input characters that don't change token count does nothing.</p>
-
-  <h2>The measurement</h2>
-  <p class="lead">A full CRUD controller (with a structured log), hand-written vs. Smoower.Minified, same behavior:</p>
-  <div class="stat">
-    <div class="box"><div class="n hl">~{SAVED / VAN:.0%}</div><div class="l">fewer output tokens on this controller</div></div>
-    <div class="box"><div class="n">10-25%</div><div class="l">typical across a whole project</div></div>
-  </div>
-
-  <h2>The catch: the prompt isn't free</h2>
-  <p class="lead">The model can't emit <code>ok1()</code> or <code>:Ctl</code> unless it knows what they mean. These names aren't in its training data the way <code>FirstOrDefaultAsync</code> is, so you have to add the rules:</p>
-  <div class="stat">
-    <div class="box"><div class="n">{SKILL_T}</div><div class="l">tokens, Claude skill (<code>SKILL.md</code>)</div></div>
-    <div class="box"><div class="n">{SYSP_T}</div><div class="l">tokens, system prompt (<code>system-prompt.md</code>)</div></div>
-  </div>
-  <p class="lead">Crucially this is <strong>input</strong>, paid <strong>once</strong> per session and <strong>cacheable</strong>, not re-emitted per file like output is. That asymmetry (cheap, one-time, cached input vs. expensive, recurring output) is the whole reason the trade works.</p>
-
-  <h2>Break-even</h2>
-  <p class="lead">How many controllers must you generate before the {SYSP_T}-token system prompt pays for itself? Break-even = prompt&nbsp;input&nbsp;tokens ÷ (saved&nbsp;output&nbsp;tokens × output:input&nbsp;price&nbsp;ratio):</p>
-  <table>
-    <thead><tr><th>output : input price</th><th>uncached</th><th>cached @ 0.1&times;</th></tr></thead>
-    <tbody>
-{breakeven_rows}
-    </tbody>
-  </table>
-  <p class="lead">Cached, you're ahead well before the first controller is done. Uncached, it's one to two controllers depending on the output:input price ratio (about 1.0 at Claude's current 5&times;, ~1.7 at 3&times;). Either way, every controller after that is pure savings: the output tokens you didn't emit, times the price ratio. The more code you generate per session, the better it gets.</p>
-
-  <h2>Faster, the strongest claim</h2>
-  <p class="lead">Because decode is sequential, the file that is half the tokens takes roughly half the time to stream out. The added prompt lands in prefill (parallel, and cached after the first call), so it barely touches latency. Net: shorter time-to-finished-file, and a snappier feel when iterating.</p>
-
-  <h2>Less context, real but secondary</h2>
-  <p class="lead">In a multi-turn session, everything already written stays in the window and is re-processed as input on every subsequent turn. A controller that comes out ~50% smaller leaves more room before you hit the limit (or trigger summarization), and makes each later turn's input cheaper. It's the same mechanism as "cheaper," applied forward in time.</p>
-
-  <h2>Where the claim breaks down</h2>
-  <ul>
-    <li><strong>The tokenizer here is a proxy.</strong> <code>o200k_base</code> is GPT-4o's, and Claude's differs. The ratios hold qualitatively, the exact numbers won't.</li>
-    <li><strong>Unusual names are out-of-distribution.</strong> The model has seen <code>SaveChangesAsync</code> billions of times and <code>save()</code> almost never. With the prompt in context it's reliable, but expect the occasional slip, and a correction turn can cost more than the file saved. Adherence matters, so measure it on your stack.</li>
-    <li><strong>Reasoning tokens are unaffected.</strong> On a thinking model, the compact style shrinks the <em>answer</em>, not the hidden reasoning it spends working out the logic.</li>
-    <li><strong>Tiny one-off edits don't amortize.</strong> If you generate one three-line snippet and stop, the prompt overhead can exceed the savings. The trade favors output-heavy, multi-file, multi-turn work.</li>
-    <li><strong>Character-only shortcuts give none of this.</strong> <code>.Where(</code> → <code>.w(</code> is the same token count, so zero cost or speed benefit. We keep a few for consistency and label them <span class="delta zero">0</span> in the <a href="index.html#overview">reference</a>.</li>
-    <li><strong>Caching has a floor.</strong> Anthropic's prompt cache only engages above a minimum prefix (roughly 1 to 4K tokens, depending on the model: about 4K on Opus, 2K on Sonnet&nbsp;4.6). The ~1,050-token rules prompt clears that floor reliably only when it rides inside the rest of your system prompt, not as a tiny standalone block, so read the cached column as the steady state rather than the first call.</li>
-  </ul>
-
-  <div class="callout">
-    <strong>Verdict.</strong> For an AI assistant generating ASP.NET Core / EF Core code across a session, all three benefits are real: <strong>faster</strong> (decode-bound, the cleanest win), <strong>cheaper</strong> (after a sub-one-controller break-even), and <strong>lighter on context</strong> (compounding over turns). It is <em>not</em> a win for one-shot tiny edits, and it never changes runtime behavior, only how many tokens the code costs to write.
-  </div>
-
-  <p class="lead">Reproduce these numbers: <code>python bench/economics.py</code> and <code>python bench/tokens.py</code>.</p>
-</section>"""
+    out.append("</tbody></table>")
+    return "\n".join(out)
 
 
 SHELL = """<!doctype html>
@@ -423,7 +269,7 @@ SHELL = """<!doctype html>
 <main class="content" id="top">
 {content}
 <footer>
-  Generated by <code>docs/build.py</code>. Token figures via tiktoken <code>o200k_base</code> (proxy for Claude's tokenizer). Smoower.Minified is MIT-licensed.
+  Generated by <code>docs/build.py</code>. Smoower.Minified is source-available under a non-compete license; see <code>LICENSE</code>.
 </footer>
 </main>
 </div>
@@ -432,53 +278,136 @@ SHELL = """<!doctype html>
 """
 
 
-def page(filename, title, desc, subtitle, current, content):
-    out = SHELL.format(
-        title=title, desc=desc, subtitle=subtitle,
-        nav=render_nav(current), content=content,
-    )
-    out_path = os.path.join(HERE, filename)
-    with open(out_path, "w", encoding="utf-8") as f:
+def page(filename, title, desc, subtitle, content):
+    out = SHELL.format(title=title, desc=desc, subtitle=subtitle,
+                       nav=render_nav(filename), content=content)
+    with open(os.path.join(HERE, filename), "w", encoding="utf-8") as f:
         f.write(out)
-    print(f"wrote {out_path} ({len(out)} bytes)")
+    print(f"wrote {filename}")
 
 
-INDEX_CONTENT = """<section id="overview">
+# ── Page content ─────────────────────────────────────────────────────────────
+OVERVIEW = """<section>
   <h1>Smoower.Minified</h1>
-  <p class="tagline">Compact, valid C# that cuts the tokens your AI spends on .NET boilerplate.</p>
-  <p class="lead">Every symbol below is an ordinary C# type or extension method, with no source generator and no transpiler. The compiled IL is identical to the long form. The point is fewer <em>output tokens</em> when an LLM writes or rewrites your code: lower cost, faster generation, and less context burned over a session. Whether that actually pays off is worked out on <a href="economics.html">Does it pay off?</a></p>
+  <p class="tagline">Compact, ordinary C# that cuts the tokens an AI spends on .NET boilerplate.</p>
+
+  <p class="lead">When an AI assistant writes ASP.NET Core or EF Core code, most of what it types is not your logic &mdash; it is framework ceremony. <code>Task&lt;IActionResult&gt;</code>, <code>FirstOrDefaultAsync</code>, <code>AddScoped</code>, attribute noise, the same controller scaffolding again and again. Every token of that is generated afresh on each write, rewrite, and refactor.</p>
+
+  <p class="lead">Smoower.Minified swaps that ceremony for short, stable helpers &mdash; <code>Tr</code>, <code>.one()</code>, <code>scoped&lt;&gt;</code>, <code>[HG]</code>, <code>.ok1()</code> &mdash; that compile to the exact same IL. There is no source generator and no transpiler; it is plain C# extension methods, attributes, and type aliases. The behaviour never changes. Only the number of tokens it takes to write the code does.</p>
+
+  <h2>Why it helps</h2>
   <div class="stat">
-    <div class="box"><div class="n hl">~50%</div><div class="l">fewer output tokens on a CRUD controller</div></div>
-    <div class="box"><div class="n">10-25%</div><div class="l">fewer across a whole project</div></div>
+    <div class="box"><div class="n hl">Faster</div><div class="l">generation time tracks output length &mdash; less to type, less to wait for</div></div>
+    <div class="box"><div class="n hl">Cheaper</div><div class="l">output tokens are billed, and there are simply fewer of them</div></div>
+    <div class="box"><div class="n hl">Lighter</div><div class="l">shorter code leaves more room in the context window over a session</div></div>
   </div>
-  <div class="callout info">
-    <strong>How to read the <code>tok&nbsp;&Delta;</code> column.</strong> Tokens saved per use, measured with tiktoken's <code>o200k_base</code> (GPT-4o) as a proxy for Claude's tokenizer, a relative signal rather than gospel. Rows showing <span class="delta zero">0</span> save no tokens (the long name was already a single token), and they're kept for a shorter, consistent style, not for cost. The real wins are the long PascalCase names and the result-fusing terminators.
-  </div>
+
+  <h2>The honest trade-off</h2>
+  <p class="lead">The compact form is terser than verbose C#, and at a first glance less familiar to a human reader. The assistant also needs a small rules prompt so it knows the helpers. Neither is free &mdash; but both are paid once and earned back quickly, and what remains is still completely ordinary, debuggable C# that any .NET developer can step through. For AI-heavy projects that is a trade most teams will gladly make. For a one-line script edited by hand, it is not.</p>
+
+  <p class="lead">See whether it pays off for your workload on <a href="economics.html">Does it pay off?</a>, or go straight to <a href="getting-started.html">Getting started</a>.</p>
+
   <div class="callout">
-    <strong>Never compact the contract.</strong> Route templates, HTTP verbs, status codes, and DTO property / JSON names must stay exactly as your API requires. This changes how code is written, never what it does at runtime.
+    <strong>The one rule: never compact the contract.</strong> Route templates, HTTP verbs, status codes, and DTO / JSON names stay exactly as your API requires. Smoower changes how code is written, never what it does.
   </div>
-  <p class="lead">Point your AI at the style: Claude Code uses the skill in <code>.claude/skills/smoower-minified/</code>, and GPT / Copilot / Cursor use <code>prompts/system-prompt.md</code>. Repo: <a href="https://github.com/smoower/dotnet-minified">github.com/smoower/dotnet-minified</a>.</p>
-</section>
-{libs}"""
+</section>"""
+
+
+GETTING_STARTED = """<section>
+  <h1>Getting started</h1>
+  <p class="lead">Two ways in. If your assistant has tool access, let it do the wiring; otherwise it is three small steps by hand.</p>
+
+  <h2>Option A &mdash; let your AI set it up</h2>
+  <p class="lead">Paste <code>prompts/setup-prompt.md</code> into your assistant in a new or existing repo. It detects the project (or scaffolds a Web API in an empty one), installs the packages it needs, writes <code>GlobalUsings.cs</code>, adds the compact-style rules to your <code>CLAUDE.md</code> / <code>copilot-instructions.md</code>, and builds to verify. It is safe to re-run; it only adds what is missing.</p>
+  <div class="callout info"><strong>Claude Code</strong> users can skip the paste &mdash; the repo ships a skill at <code>.claude/skills/smoower-minified/</code>; just ask it to &ldquo;set up Smoower.Minified in this project.&rdquo;</div>
+
+  <h2>Option B &mdash; install by hand</h2>
+  <p class="lead">1. Add the packages you need (see <a href="libraries.html">Libraries</a>). The default ASP.NET Core backend set:</p>
+  <pre>dotnet add package Smoower.Minified.Core
+dotnet add package Smoower.Minified.AspNetCore
+dotnet add package Smoower.Minified.EFCore
+dotnet add package Smoower.Minified.Hosting</pre>
+
+  <p class="lead">2. Drop the imports and aliases into a <code>GlobalUsings.cs</code> in your project. Aliases are not transitive across assemblies, so they live in your code:</p>
+  <pre>global using Smoower.Minified.Core;
+global using Smoower.Minified.AspNetCore;
+global using Smoower.Minified.EFCore;
+global using Ctl = Microsoft.AspNetCore.Mvc.ControllerBase;
+global using Res = Microsoft.AspNetCore.Mvc.IActionResult;
+global using Tr  = System.Threading.Tasks.Task&lt;Microsoft.AspNetCore.Mvc.IActionResult&gt;;
+global using CT  = System.Threading.CancellationToken;</pre>
+
+  <p class="lead">3. Point your assistant at the style. Claude Code uses the bundled skill; GPT, Copilot, and Cursor take <code>prompts/system-prompt.md</code> as a system prompt or rules file.</p>
+
+  <p class="lead">Keep the <a href="cheat-sheet.html">Cheat sheet</a> handy, and that is it.</p>
+</section>"""
+
+
+def render_packages():
+    rows = "\n".join(
+        f"<tr><td><code>{esc(n)}</code></td><td>{esc(b)}</td></tr>" for n, b in PACKAGES)
+    return f"""<section>
+  <h1>Supported libraries &amp; packages</h1>
+  <p class="lead">Each package is independent &mdash; take only what you use. The data and web layers are split so a console worker can reference <code>EFCore</code> without dragging in ASP.NET Core. Every mapping each package provides is in the <a href="cheat-sheet.html">Cheat sheet</a>.</p>
+  <table><thead><tr><th>Package</th><th>What it covers</th></tr></thead><tbody>
+{rows}
+  </tbody></table>
+  <div class="callout">
+    <strong>Want to see your favourite library here?</strong> Smoower grows by the libraries its users lean on. If there is a package you would like covered, <a href="https://github.com/smoower/dotnet-minified/issues">open an issue and let us know</a>.
+  </div>
+</section>"""
+
+
+ECONOMICS = """<section>
+  <h1>Does it pay off?</h1>
+  <p class="tagline">Faster, cheaper, lighter on context &mdash; and tried on real production code, not toy samples.</p>
+
+  <p class="lead">The promise is simple: an AI that writes less boilerplate writes faster, costs less, and keeps more of its context window free. The question is how much of that survives contact with real code. To find out, Smoower was applied to a slice of a live .NET application &mdash; a handful of production API controllers and a single sprawling EF Core <code>DbContext</code> of nearly two thousand lines &mdash; and the before and after were measured with the model&rsquo;s own tokenizer.</p>
+
+  <h2>What the real code showed</h2>
+  <p class="lead">The compact form came out meaningfully smaller everywhere it touched framework ceremony. Typical API controllers shrank by roughly a third, and the most boilerplate-heavy of them by nearly half. Even the giant <code>DbContext</code> &mdash; almost entirely schema configuration, the least compressible code there is &mdash; came down by about a quarter once the EF Core configuration helpers were applied. Across the whole sample, on untouched real-world code, the saving landed at around a quarter fewer tokens.</p>
+  <div class="stat">
+    <div class="box"><div class="n hl">a third to a half</div><div class="l">on typical API controllers</div></div>
+    <div class="box"><div class="n hl">about a quarter</div><div class="l">across a whole real-world slice, schema config included</div></div>
+  </div>
+
+  <h2>Faster &mdash; the strongest claim</h2>
+  <p class="lead">Models emit output one token at a time, so the wall-clock time to produce a file tracks its length almost linearly. Halve the ceremony and you roughly halve the time spent streaming it out. The rules prompt is read once, in parallel, and cached &mdash; it barely touches latency. This is the benefit that holds up most cleanly.</p>
+
+  <h2>Cheaper &mdash; after a small, one-time cost</h2>
+  <p class="lead">Output tokens are billed, and they cost several times more than input. The compact code emits fewer of them on every file. Against that sits a one-time cost: a short rules prompt the assistant needs in context. It is input rather than output, it is paid once per session, and it caches. On any project that generates more than a file or two, it is recouped quickly &mdash; and everything after is saving.</p>
+
+  <h2>Lighter on context &mdash; real, but second-order</h2>
+  <p class="lead">In a long session, everything already written is re-read on every later turn. Code that is a quarter to a half smaller leaves more headroom before the window fills, and makes each subsequent turn a little cheaper. It is the same mechanism as &ldquo;cheaper,&rdquo; compounding over time.</p>
+
+  <h2>Where it does not help &mdash; so the numbers stay honest</h2>
+  <p class="lead">Smoower only shortens framework ceremony. Your domain &mdash; entity and property names, business rules, the logic itself &mdash; is the contract, and it does not shrink, nor should it. That is why a whole project lands at a portion rather than the headline figure: the savings are concentrated in controllers, data access, wiring, and configuration, and diluted by everything that is genuinely your own. It is built for output-heavy, multi-file, multi-turn AI work; for a single hand-edited snippet the rules prompt would cost more than it saves. And throughout, the runtime behaviour is identical &mdash; the compiled IL does not change.</p>
+
+  <div class="callout">
+    <strong>The bottom line.</strong> For an assistant generating ASP.NET Core and EF Core code across a session, all three benefits are real on real code: faster (the cleanest win), cheaper (after a sub-one-file break-even), and lighter on context (compounding over turns). It is not a trick for one-off edits, and it never changes what your code does.
+  </div>
+</section>"""
+
+
+def render_cheatsheet():
+    out = ['<section>', '<h1>Cheat sheet</h1>',
+           '<p class="lead">Every mapping, grouped by package. The long form on the left, the compact form Smoower uses on the right. Same behaviour, same compiled IL.</p>']
+    for name, groups in LIBS:
+        anchor = name.replace("Smoower.Minified.", "").replace(".", "-").lower()
+        out.append(f'<h2 id="{anchor}">{esc(name)}</h2>')
+        for title, rows in groups:
+            out.append(f"<h3>{esc(title)}</h3>")
+            out.append(map_table(rows))
+    out.append("</section>")
+    return "\n".join(out)
 
 
 def main():
-    page(
-        "index.html",
-        "Smoower.Minified: library reference",
-        "Per-library before/after reference for Smoower.Minified: compact ASP.NET Core / EF Core helpers that cut AI output tokens.",
-        "library reference",
-        "index",
-        INDEX_CONTENT.format(libs=render_libs()),
-    )
-    page(
-        "economics.html",
-        "Smoower.Minified: does it pay off?",
-        "Is compact AI-generated .NET code actually cheaper, faster, and lighter on context? The measured break-even and the honest caveats.",
-        "does it pay off?",
-        "economics",
-        render_economics(),
-    )
+    page("index.html", "Smoower.Minified", "Compact, ordinary C# that cuts the tokens an AI spends on .NET boilerplate.", "overview", OVERVIEW)
+    page("getting-started.html", "Smoower.Minified: getting started", "Set up Smoower.Minified: AI-assisted or by hand, plus the prompts to point your assistant at.", "getting started", GETTING_STARTED)
+    page("libraries.html", "Smoower.Minified: libraries", "The libraries and packages Smoower.Minified currently supports.", "libraries", render_packages())
+    page("economics.html", "Smoower.Minified: does it pay off?", "Is compact AI-generated .NET code faster, cheaper, and lighter on context? Measured on real production code.", "does it pay off?", ECONOMICS)
+    page("cheat-sheet.html", "Smoower.Minified: cheat sheet", "Every long-form to compact mapping, grouped by package.", "cheat sheet", render_cheatsheet())
 
 
 if __name__ == "__main__":

@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\src\Smoower.Minified.Core\Smoower.Minified.Core.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.AspNetCore\Smoower.Minified.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.EFCore\Smoower.Minified.EFCore.csproj" />
+    <ProjectReference Include="..\..\src\Smoower.Minified.Extensions\Smoower.Minified.Extensions.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Http\Smoower.Minified.Http.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Redis\Smoower.Minified.Redis.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Logging\Smoower.Minified.Logging.csproj" />

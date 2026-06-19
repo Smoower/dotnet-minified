@@ -26,4 +26,8 @@ public static class ServiceExtensions
     public static IServiceCollection trans<TService, TImpl>(this IServiceCollection s)
         where TService : class where TImpl : class, TService
         => s.AddTransient<TService, TImpl>();
+
+    // Resolution side: GetRequiredService is long and common in factories/seeders.
+    public static T svc<T>(this IServiceProvider sp) where T : notnull
+        => sp.GetRequiredService<T>();
 }

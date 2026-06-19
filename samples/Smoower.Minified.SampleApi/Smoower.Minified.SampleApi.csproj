@@ -6,13 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.*" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\src\Smoower.Minified.Core\Smoower.Minified.Core.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.AspNetCore\Smoower.Minified.AspNetCore.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.EFCore\Smoower.Minified.EFCore.csproj" />
+    <ProjectReference Include="..\..\src\Smoower.Minified.EFCore.InMemory\Smoower.Minified.EFCore.InMemory.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Hosting\Smoower.Minified.Hosting.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Logging\Smoower.Minified.Logging.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Validation\Smoower.Minified.Validation.csproj" />

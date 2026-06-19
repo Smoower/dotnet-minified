@@ -33,4 +33,11 @@ public class ServiceExtensionsTests
         var provider = new ServiceCollection().trans<Bar>().BuildServiceProvider();
         Assert.NotSame(provider.GetRequiredService<Bar>(), provider.GetRequiredService<Bar>());
     }
+
+    [Fact]
+    public void Svc_ResolvesRequiredService()
+    {
+        IServiceProvider provider = new ServiceCollection().single<Bar>().BuildServiceProvider();
+        Assert.Same(provider.GetRequiredService<Bar>(), provider.svc<Bar>());
+    }
 }

@@ -3,267 +3,49 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Smoower.Minified: library reference</title>
-<meta name="description" content="Per-library before/after reference for Smoower.Minified: compact ASP.NET Core / EF Core helpers that cut AI output tokens.">
+<title>Smoower.Minified</title>
+<meta name="description" content="Compact, ordinary C# that cuts the tokens an AI spends on .NET boilerplate.">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="layout">
 <aside class="sidebar">
-  <div class="brand"><b>Smoower.Minified</b><span>library reference</span></div>
+  <div class="brand"><b>Smoower.Minified</b><span>overview</span></div>
   <nav>
-<a class="group" href="#overview">Overview</a>
-<a href="#core"><code>Core</code></a>
-<a href="#aspnetcore"><code>AspNetCore</code></a>
-<a href="#efcore"><code>EFCore</code></a>
-<a href="#http"><code>Http</code></a>
-<a href="#redis"><code>Redis</code></a>
-<a href="#logging"><code>Logging</code></a>
-<a href="#hosting"><code>Hosting</code></a>
-<a href="#validation"><code>Validation</code></a>
-<a href="#json"><code>Json</code></a>
-<a href="#dapper"><code>Dapper</code></a>
-<a class="group" href="economics.html">Does it pay off?</a>
+<a href="index.html" class="active">Overview</a>
+<a href="getting-started.html">Getting started</a>
+<a href="libraries.html">Libraries</a>
+<a href="economics.html">Does it pay off?</a>
+<a href="cheat-sheet.html">Cheat sheet</a>
   </nav>
 </aside>
 <main class="content" id="top">
-<section id="overview">
+<section>
   <h1>Smoower.Minified</h1>
-  <p class="tagline">Compact, valid C# that cuts the tokens your AI spends on .NET boilerplate.</p>
-  <p class="lead">Every symbol below is an ordinary C# type or extension method, with no source generator and no transpiler. The compiled IL is identical to the long form. The point is fewer <em>output tokens</em> when an LLM writes or rewrites your code: lower cost, faster generation, and less context burned over a session. Whether that actually pays off is worked out on <a href="economics.html">Does it pay off?</a></p>
+  <p class="tagline">Compact, ordinary C# that cuts the tokens an AI spends on .NET boilerplate.</p>
+
+  <p class="lead">When an AI assistant writes ASP.NET Core or EF Core code, most of what it types is not your logic &mdash; it is framework ceremony. <code>Task&lt;IActionResult&gt;</code>, <code>FirstOrDefaultAsync</code>, <code>AddScoped</code>, attribute noise, the same controller scaffolding again and again. Every token of that is generated afresh on each write, rewrite, and refactor.</p>
+
+  <p class="lead">Smoower.Minified swaps that ceremony for short, stable helpers &mdash; <code>Tr</code>, <code>.one()</code>, <code>scoped&lt;&gt;</code>, <code>[HG]</code>, <code>.ok1()</code> &mdash; that compile to the exact same IL. There is no source generator and no transpiler; it is plain C# extension methods, attributes, and type aliases. The behaviour never changes. Only the number of tokens it takes to write the code does.</p>
+
+  <h2>Why it helps</h2>
   <div class="stat">
-    <div class="box"><div class="n hl">~50%</div><div class="l">fewer output tokens on a CRUD controller</div></div>
-    <div class="box"><div class="n">10-25%</div><div class="l">fewer across a whole project</div></div>
+    <div class="box"><div class="n hl">Faster</div><div class="l">generation time tracks output length &mdash; less to type, less to wait for</div></div>
+    <div class="box"><div class="n hl">Cheaper</div><div class="l">output tokens are billed, and there are simply fewer of them</div></div>
+    <div class="box"><div class="n hl">Lighter</div><div class="l">shorter code leaves more room in the context window over a session</div></div>
   </div>
-  <div class="callout info">
-    <strong>How to read the <code>tok&nbsp;&Delta;</code> column.</strong> Tokens saved per use, measured with tiktoken's <code>o200k_base</code> (GPT-4o) as a proxy for Claude's tokenizer, a relative signal rather than gospel. Rows showing <span class="delta zero">0</span> save no tokens (the long name was already a single token), and they're kept for a shorter, consistent style, not for cost. The real wins are the long PascalCase names and the result-fusing terminators.
-  </div>
+
+  <h2>The honest trade-off</h2>
+  <p class="lead">The compact form is terser than verbose C#, and at a first glance less familiar to a human reader. The assistant also needs a small rules prompt so it knows the helpers. Neither is free &mdash; but both are paid once and earned back quickly, and what remains is still completely ordinary, debuggable C# that any .NET developer can step through. For AI-heavy projects that is a trade most teams will gladly make. For a one-line script edited by hand, it is not.</p>
+
+  <p class="lead">See whether it pays off for your workload on <a href="economics.html">Does it pay off?</a>, or go straight to <a href="getting-started.html">Getting started</a>.</p>
+
   <div class="callout">
-    <strong>Never compact the contract.</strong> Route templates, HTTP verbs, status codes, and DTO property / JSON names must stay exactly as your API requires. This changes how code is written, never what it does at runtime.
+    <strong>The one rule: never compact the contract.</strong> Route templates, HTTP verbs, status codes, and DTO / JSON names stay exactly as your API requires. Smoower changes how code is written, never what it does.
   </div>
-  <p class="lead">Point your AI at the style: Claude Code uses the skill in <code>.claude/skills/smoower-minified/</code>, and GPT / Copilot / Cursor use <code>prompts/system-prompt.md</code>. Repo: <a href="https://github.com/smoower/dotnet-minified">github.com/smoower/dotnet-minified</a>.</p>
-</section>
-<section id="core">
-<h2>Smoower.Minified.Core</h2>
-<p class="lead">Framework-agnostic guards and the base type aliases. Zero web/EF dependency, so every other package can sit on top of it.</p>
-<p class="deps"><strong>Depends on:</strong> Microsoft.Extensions.Configuration.Abstractions</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.Core" Version="0.1.0" /&gt;</pre>
-<h3>Guards</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>s.nil()</code></td><td class="long"><code>string.IsNullOrWhiteSpace(s)</code></td><td><span class="delta pos">+5</span></td><td></td></tr>
-<tr><td class="short"><code>s.emp()</code></td><td class="long"><code>string.IsNullOrEmpty(s)</code></td><td><span class="delta pos">+4</span></td><td></td></tr>
-<tr><td class="short"><code>items.none()</code></td><td class="long"><code>!items.Any()</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-</tbody></table>
-<h3>Aliases</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>CT ct</code></td><td class="long"><code>CancellationToken ct</code></td><td><span class="delta pos">+1</span></td><td>alias</td></tr>
-<tr><td class="short"><code>Cfg cfg</code></td><td class="long"><code>IConfiguration cfg</code></td><td><span class="delta pos">+1</span></td><td>alias</td></tr>
-</tbody></table>
-</section>
-<section id="aspnetcore">
-<h2>Smoower.Minified.AspNetCore</h2>
-<p class="lead">Compact MVC attributes, type aliases, and the result-fusing terminators that turn a controller action into a single expression. Depends on EFCore so the terminators can run queries, and keeps EFCore itself web-free.</p>
-<p class="deps"><strong>Depends on:</strong> ASP.NET Core (FrameworkReference) · Smoower.Minified.EFCore · Smoower.Minified.Core</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.AspNetCore" Version="0.1.0" /&gt;</pre>
-<h3>Attributes</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>[API]</code></td><td class="long"><code>[ApiController]</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>[RT(&quot;api/users&quot;)]</code></td><td class="long"><code>[Route(&quot;api/users&quot;)]</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>[HG(&quot;{id}&quot;)]</code></td><td class="long"><code>[HttpGet(&quot;{id}&quot;)]</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>[HPO]</code></td><td class="long"><code>[HttpPost]</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>[HPU]</code></td><td class="long"><code>[HttpPut]</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>[HPA]</code></td><td class="long"><code>[HttpPatch]</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>[HD(&quot;{id}&quot;)]</code></td><td class="long"><code>[HttpDelete(&quot;{id}&quot;)]</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>[AUTH]</code></td><td class="long"><code>[Authorize]</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>[ANON]</code></td><td class="long"><code>[AllowAnonymous]</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>[FB]</code></td><td class="long"><code>[FromBody]</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>[FR]</code></td><td class="long"><code>[FromRoute]</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>[FQ]</code></td><td class="long"><code>[FromQuery]</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>[FH]</code></td><td class="long"><code>[FromHeader]</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-</tbody></table>
-<h3>Aliases</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>:Ctl</code></td><td class="long"><code>: ControllerBase</code></td><td><span class="delta pos">+1</span></td><td>alias</td></tr>
-<tr><td class="short"><code>Res</code></td><td class="long"><code>IActionResult</code></td><td><span class="delta pos">+2</span></td><td>alias</td></tr>
-<tr><td class="short"><code>AR</code></td><td class="long"><code>ActionResult</code></td><td><span class="delta pos">+1</span></td><td>alias (non-generic)</td></tr>
-<tr><td class="short"><code>Tr</code></td><td class="long"><code>Task&lt;IActionResult&gt;</code></td><td><span class="delta pos">+3</span></td><td>closed-generic alias</td></tr>
-</tbody></table>
-<h3>Result-fusing terminators</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>q.ok1()</code></td><td class="long"><code>var x=await q.FirstOrDefaultAsync();return x==null?NotFound():Ok(x);</code></td><td><span class="delta pos">+17</span></td><td>200 row / 404</td></tr>
-<tr><td class="short"><code>q.okl()</code></td><td class="long"><code>Ok(await q.ToListAsync())</code></td><td><span class="delta pos">+3</span></td><td>200 list</td></tr>
-<tr><td class="short"><code>q.okc()</code></td><td class="long"><code>Ok(await q.CountAsync())</code></td><td><span class="delta pos">+2</span></td><td>200 count</td></tr>
-<tr><td class="short"><code>set.okId(id)</code></td><td class="long"><code>var x=await set.FindAsync(id);return x==null?NotFound():Ok(x);</code></td><td><span class="delta pos">+15</span></td><td>200 row / 404</td></tr>
-<tr><td class="short"><code>db.okAdd(e)</code></td><td class="long"><code>db.Add(e);await db.SaveChangesAsync();return Ok(e);</code></td><td><span class="delta pos">+9</span></td><td>200 entity</td></tr>
-<tr><td class="short"><code>db.okNew(e)</code></td><td class="long"><code>db.Add(e);await db.SaveChangesAsync();return CreatedAtAction(nameof(Get), new{id=e.Id}, e);</code></td><td><span class="delta pos">+19</span></td><td>add+save, 201</td></tr>
-<tr><td class="short"><code>value.created()</code></td><td class="long"><code>CreatedAtAction(nameof(Get), new { id = value.Id }, value)</code></td><td><span class="delta pos">+12</span></td><td>201 with body</td></tr>
-<tr><td class="short"><code>db.delById&lt;User&gt;(id)</code></td><td class="long"><code>var x=await db.Set&lt;User&gt;().FindAsync(id);if(x==null)return NotFound();db.Remove(x);await db.SaveChangesAsync();return NoContent();</code></td><td><span class="delta pos">+26</span></td><td>204 / 404</td></tr>
-</tbody></table>
-<h3>Response-type attributes (Swagger)</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>[P200]</code></td><td class="long"><code>[ProducesResponseType(StatusCodes.Status200OK)]</code></td><td><span class="delta pos">+7</span></td><td></td></tr>
-<tr><td class="short"><code>[P200&lt;UserDto&gt;]</code></td><td class="long"><code>[ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]</code></td><td><span class="delta pos">+9</span></td><td>generic</td></tr>
-<tr><td class="short"><code>[P201]</code></td><td class="long"><code>[ProducesResponseType(StatusCodes.Status201Created)]</code></td><td><span class="delta pos">+7</span></td><td></td></tr>
-<tr><td class="short"><code>[P400]</code></td><td class="long"><code>[ProducesResponseType(StatusCodes.Status400BadRequest)]</code></td><td><span class="delta pos">+8</span></td><td></td></tr>
-<tr><td class="short"><code>[P404]</code></td><td class="long"><code>[ProducesResponseType(StatusCodes.Status404NotFound)]</code></td><td><span class="delta pos">+8</span></td><td></td></tr>
-</tbody></table>
-</section>
-<section id="efcore">
-<h2>Smoower.Minified.EFCore</h2>
-<p class="lead">EF Core query and write shorteners. Predicates and projections take Expression&lt;Func&lt;...&gt;&gt;, so EF Core still translates to SQL. Async is the unmarked default, and sync gets an S suffix.</p>
-<p class="deps"><strong>Depends on:</strong> Microsoft.EntityFrameworkCore (8.x / 9.x / 10.x per TFM) · Smoower.Minified.Core</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.EFCore" Version="0.1.0" /&gt;</pre>
-<h3>Query (composition)</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>q.w(x=&gt;x.Id==id)</code></td><td class="long"><code>q.Where(x=&gt;x.Id==id)</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>q.s(x=&gt;x.Name)</code></td><td class="long"><code>q.Select(x=&gt;x.Name)</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>q.ob(x=&gt;x.Name)</code></td><td class="long"><code>q.OrderBy(x=&gt;x.Name)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>q.obd(x=&gt;x.Name)</code></td><td class="long"><code>q.OrderByDescending(x=&gt;x.Name)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>q.tb(x=&gt;x.Name)</code></td><td class="long"><code>q.ThenBy(x=&gt;x.Name)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>q.tbd(x=&gt;x.Name)</code></td><td class="long"><code>q.ThenByDescending(x=&gt;x.Name)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>q.sk(10)</code></td><td class="long"><code>q.Skip(10)</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>q.tk(10)</code></td><td class="long"><code>q.Take(10)</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>q.nt()</code></td><td class="long"><code>q.AsNoTracking()</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>q.inc(x=&gt;x.Orders)</code></td><td class="long"><code>q.Include(x=&gt;x.Orders)</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-</tbody></table>
-<h3>Query (async terminators)</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>q.lst()</code></td><td class="long"><code>q.ToListAsync()</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>q.one()</code></td><td class="long"><code>q.FirstOrDefaultAsync()</code></td><td><span class="delta pos">+3</span></td><td></td></tr>
-<tr><td class="short"><code>q.single()</code></td><td class="long"><code>q.SingleOrDefaultAsync()</code></td><td><span class="delta pos">+3</span></td><td></td></tr>
-<tr><td class="short"><code>q.any()</code></td><td class="long"><code>q.AnyAsync()</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>q.cnt()</code></td><td class="long"><code>q.CountAsync()</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-</tbody></table>
-<h3>Write (async)</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>set.id(key)</code></td><td class="long"><code>set.FindAsync(key)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>await db.save()</code></td><td class="long"><code>await db.SaveChangesAsync()</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>await db.add(e)</code></td><td class="long"><code>db.Add(e);await db.SaveChangesAsync();</code></td><td><span class="delta pos">+5</span></td><td>returns e</td></tr>
-<tr><td class="short"><code>await db.upd(e)</code></td><td class="long"><code>db.Update(e);await db.SaveChangesAsync();</code></td><td><span class="delta pos">+4</span></td><td>returns e</td></tr>
-<tr><td class="short"><code>await db.del(e)</code></td><td class="long"><code>db.Remove(e);await db.SaveChangesAsync();</code></td><td><span class="delta pos">+5</span></td><td></td></tr>
-</tbody></table>
-<h3>Sync variants (S suffix)</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>q.lstS()</code></td><td class="long"><code>q.ToList()</code></td><td><span class="delta zero">0</span></td><td>no token win</td></tr>
-<tr><td class="short"><code>q.oneS()</code></td><td class="long"><code>q.FirstOrDefault()</code></td><td><span class="delta pos">+1</span></td><td>no token win</td></tr>
-<tr><td class="short"><code>db.saveS()</code></td><td class="long"><code>db.SaveChanges()</code></td><td><span class="delta zero">0</span></td><td>no token win</td></tr>
-<tr><td class="short"><code>set.idS(key)</code></td><td class="long"><code>set.Find(key)</code></td><td><span class="delta zero">0</span></td><td>no token win</td></tr>
-</tbody></table>
-</section>
-<section id="http">
-<h2>Smoower.Minified.Http</h2>
-<p class="lead">HttpClient JSON helpers over System.Net.Http.Json.</p>
-<p class="deps"><strong>Depends on:</strong> (framework only)</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.Http" Version="0.1.0" /&gt;</pre>
-<h3>HttpClient</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>c.getJson&lt;T&gt;(url)</code></td><td class="long"><code>c.GetFromJsonAsync&lt;T&gt;(url)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>c.postJson(url, body)</code></td><td class="long"><code>c.PostAsJsonAsync(url, body)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>c.putJson(url, body)</code></td><td class="long"><code>c.PutAsJsonAsync(url, body)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>c.patchJson(url, body)</code></td><td class="long"><code>c.PatchAsJsonAsync(url, body)</code></td><td><span class="delta pos">+3</span></td><td></td></tr>
-<tr><td class="short"><code>c.del(url)</code></td><td class="long"><code>c.DeleteAsync(url)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-</tbody></table>
-</section>
-<section id="redis">
-<h2>Smoower.Minified.Redis</h2>
-<p class="lead">StackExchange.Redis helpers on IDatabase, plus JSON value helpers with optional TTL.</p>
-<p class="deps"><strong>Depends on:</strong> StackExchange.Redis</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.Redis" Version="0.1.0" /&gt;</pre>
-<h3>IDatabase</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>db.get(k)</code></td><td class="long"><code>db.StringGetAsync(k)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>db.set(k, v)</code></td><td class="long"><code>db.StringSetAsync(k, v)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>db.set(k, v, ttl)</code></td><td class="long"><code>db.StringSetAsync(k, v, ttl)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>db.del(k)</code></td><td class="long"><code>db.KeyDeleteAsync(k)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>db.incr(k)</code></td><td class="long"><code>db.StringIncrementAsync(k)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>db.getJson&lt;T&gt;(k)</code></td><td class="long"><code>JsonSerializer.Deserialize&lt;T&gt;(await db.StringGetAsync(k))</code></td><td><span class="delta pos">+5</span></td><td>get + deserialize</td></tr>
-<tr><td class="short"><code>db.setJson(k, v)</code></td><td class="long"><code>db.StringSetAsync(k, JsonSerializer.Serialize(v))</code></td><td><span class="delta pos">+4</span></td><td>serialize + set</td></tr>
-</tbody></table>
-</section>
-<section id="logging">
-<h2>Smoower.Minified.Logging</h2>
-<p class="lead">ILogger helpers. Declared on the non-generic ILogger base, so they apply to ILogger&lt;T&gt; too (which cannot be aliased).</p>
-<p class="deps"><strong>Depends on:</strong> Microsoft.Extensions.Logging.Abstractions</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.Logging" Version="0.1.0" /&gt;</pre>
-<h3>ILogger</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>log.inf(&quot;created {Id}&quot;, id)</code></td><td class="long"><code>log.LogInformation(&quot;created {Id}&quot;, id)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>log.wrn(&quot;slow {Ms}&quot;, ms)</code></td><td class="long"><code>log.LogWarning(&quot;slow {Ms}&quot;, ms)</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>log.err(&quot;failed {Id}&quot;, id)</code></td><td class="long"><code>log.LogError(&quot;failed {Id}&quot;, id)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>log.err(ex, &quot;failed&quot;)</code></td><td class="long"><code>log.LogError(ex, &quot;failed&quot;)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>log.dbg(&quot;state {S}&quot;, s)</code></td><td class="long"><code>log.LogDebug(&quot;state {S}&quot;, s)</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-</tbody></table>
-</section>
-<section id="hosting">
-<h2>Smoower.Minified.Hosting</h2>
-<p class="lead">Chainable DI registration helpers on IServiceCollection.</p>
-<p class="deps"><strong>Depends on:</strong> Microsoft.Extensions.DependencyInjection.Abstractions</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.Hosting" Version="0.1.0" /&gt;</pre>
-<h3>IServiceCollection</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>svc.scoped&lt;Foo&gt;()</code></td><td class="long"><code>svc.AddScoped&lt;Foo&gt;()</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>svc.scoped&lt;IFoo, Foo&gt;()</code></td><td class="long"><code>svc.AddScoped&lt;IFoo, Foo&gt;()</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>svc.single&lt;Bar&gt;()</code></td><td class="long"><code>svc.AddSingleton&lt;Bar&gt;()</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>svc.trans&lt;Baz&gt;()</code></td><td class="long"><code>svc.AddTransient&lt;Baz&gt;()</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-</tbody></table>
-</section>
-<section id="validation">
-<h2>Smoower.Minified.Validation</h2>
-<p class="lead">Compact FluentValidation rule shorteners. Inherit MiniValidator&lt;T&gt; to get the rule/req entry points, then chain the rule helpers.</p>
-<p class="deps"><strong>Depends on:</strong> FluentValidation</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.Validation" Version="0.1.0" /&gt;</pre>
-<h3>Entry points (on MiniValidator&lt;T&gt;)</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>req(x=&gt;x.Name)</code></td><td class="long"><code>RuleFor(x=&gt;x.Name).NotEmpty()</code></td><td><span class="delta pos">+4</span></td><td>NotEmpty rule</td></tr>
-<tr><td class="short"><code>rule(x=&gt;x.Age)</code></td><td class="long"><code>RuleFor(x=&gt;x.Age)</code></td><td><span class="delta pos">+1</span></td><td>plain rule</td></tr>
-</tbody></table>
-<h3>Rule shorteners</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>r.max(100)</code></td><td class="long"><code>r.MaximumLength(100)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>r.min(2)</code></td><td class="long"><code>r.MinimumLength(2)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>r.len(2, 100)</code></td><td class="long"><code>r.Length(2, 100)</code></td><td><span class="delta zero">0</span></td><td></td></tr>
-<tr><td class="short"><code>r.email()</code></td><td class="long"><code>r.EmailAddress()</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>r.matches(pattern)</code></td><td class="long"><code>r.Matches(pattern)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>r.gt(0)</code></td><td class="long"><code>r.GreaterThan(0)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>r.lt(10)</code></td><td class="long"><code>r.LessThan(10)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>r.gte(1)</code></td><td class="long"><code>r.GreaterThanOrEqualTo(1)</code></td><td><span class="delta pos">+4</span></td><td></td></tr>
-<tr><td class="short"><code>r.lte(120)</code></td><td class="long"><code>r.LessThanOrEqualTo(120)</code></td><td><span class="delta pos">+4</span></td><td></td></tr>
-<tr><td class="short"><code>r.rng(1, 5)</code></td><td class="long"><code>r.InclusiveBetween(1, 5)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-</tbody></table>
-</section>
-<section id="json">
-<h2>Smoower.Minified.Json</h2>
-<p class="lead">System.Text.Json round-trip helpers. No extra dependency. For Newtonsoft, the Smoower.Minified.Json.Newtonsoft package has the identical surface in a different namespace - import one.</p>
-<p class="deps"><strong>Depends on:</strong> (framework only) · Newtonsoft variant: Newtonsoft.Json</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.Json" Version="0.1.0" /&gt;</pre>
-<h3>System.Text.Json</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>x.toJson()</code></td><td class="long"><code>JsonSerializer.Serialize(x)</code></td><td><span class="delta pos">+1</span></td><td></td></tr>
-<tr><td class="short"><code>x.toJson(pretty: true)</code></td><td class="long"><code>JsonSerializer.Serialize(x, new JsonSerializerOptions { WriteIndented = true })</code></td><td><span class="delta pos">+7</span></td><td></td></tr>
-<tr><td class="short"><code>s.fromJson&lt;T&gt;()</code></td><td class="long"><code>JsonSerializer.Deserialize&lt;T&gt;(s)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-</tbody></table>
-<h3>Newtonsoft.Json (same names)</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>x.toJson()</code></td><td class="long"><code>JsonConvert.SerializeObject(x)</code></td><td><span class="delta pos">+2</span></td><td></td></tr>
-<tr><td class="short"><code>s.fromJson&lt;T&gt;()</code></td><td class="long"><code>JsonConvert.DeserializeObject&lt;T&gt;(s)</code></td><td><span class="delta pos">+3</span></td><td></td></tr>
-</tbody></table>
-</section>
-<section id="dapper">
-<h2>Smoower.Minified.Dapper</h2>
-<p class="lead">Compact Dapper helpers on IDbConnection, for projects not using EF Core. Thin async wrappers, and you pass Dapper&#x27;s usual anonymous-type parameter bag.</p>
-<p class="deps"><strong>Depends on:</strong> Dapper</p>
-<pre>&lt;PackageReference Include="Smoower.Minified.Dapper" Version="0.1.0" /&gt;</pre>
-<h3>IDbConnection</h3>
-<table><thead><tr><th>Compact</th><th>Long form</th><th>tok&nbsp;&Delta;</th><th>Notes</th></tr></thead><tbody>
-<tr><td class="short"><code>c.q&lt;T&gt;(sql, p)</code></td><td class="long"><code>c.QueryAsync&lt;T&gt;(sql, p)</code></td><td><span class="delta pos">+1</span></td><td>many rows</td></tr>
-<tr><td class="short"><code>c.q1&lt;T&gt;(sql, p)</code></td><td class="long"><code>c.QueryFirstOrDefaultAsync&lt;T&gt;(sql, p)</code></td><td><span class="delta pos">+3</span></td><td>first or default</td></tr>
-<tr><td class="short"><code>c.qs&lt;T&gt;(sql, p)</code></td><td class="long"><code>c.QuerySingleOrDefaultAsync&lt;T&gt;(sql, p)</code></td><td><span class="delta pos">+3</span></td><td>single or default</td></tr>
-<tr><td class="short"><code>c.ex(sql, p)</code></td><td class="long"><code>c.ExecuteAsync(sql, p)</code></td><td><span class="delta pos">+1</span></td><td>rows affected</td></tr>
-<tr><td class="short"><code>c.scalar&lt;T&gt;(sql, p)</code></td><td class="long"><code>c.ExecuteScalarAsync&lt;T&gt;(sql, p)</code></td><td><span class="delta pos">+2</span></td><td>scalar value</td></tr>
-</tbody></table>
 </section>
 <footer>
-  Generated by <code>docs/build.py</code>. Token figures via tiktoken <code>o200k_base</code> (proxy for Claude's tokenizer). Smoower.Minified is MIT-licensed.
+  Generated by <code>docs/build.py</code>. Smoower.Minified is source-available under a non-compete license; see <code>LICENSE</code>.
 </footer>
 </main>
 </div>

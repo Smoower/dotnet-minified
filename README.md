@@ -3,7 +3,7 @@
 [![CI](https://github.com/smoower/dotnet-minified/actions/workflows/ci.yml/badge.svg)](https://github.com/smoower/dotnet-minified/actions/workflows/ci.yml)
 [![NuGet](https://img.shields.io/nuget/v/Smoower.Minified.AspNetCore.svg?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Smoower.Minified.AspNetCore)
 [![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: Source-Available](https://img.shields.io/badge/License-Source--Available-red.svg)](LICENSE)
 
 **Your AI pays by the token. ASP.NET Core makes it pay a lot.**
 
@@ -52,12 +52,16 @@ wrote above, folded into the call.
 ## What that actually saves you
 
 A full CRUD controller (with logging) was measured against the hand-written
-equivalent, using `o200k_base` as a proxy for Claude's exact tokenizer. Treat it
-as a ratio, not a hard count, because the absolute number swings with how big the
-controller is.
+equivalent — both with `tiktoken`'s `o200k_base` as an offline proxy and with
+Claude's own tokenizer via the free `count_tokens` API. Treat it as a ballpark,
+not a hard count: the bench rounds to the nearest 5%, and the figure swings with
+how big the controller is and which tokenizer you use.
 
-**The compact version comes out about 50% smaller in output tokens.** Three things
-follow from that, and it's worth being precise about which ones are real.
+**The compact version comes out roughly 35-40% smaller in output tokens**
+(Claude's real tokenizer measures ~35%, the tiktoken proxy ~40% — reproduce with
+`python bench/tokens.py`; set `ANTHROPIC_API_KEY` to add the Claude column).
+Three things follow from that, and it's worth being precise about which ones are
+real.
 
 The cleanest win is speed. LLMs emit output one token at a time and decode is
 sequential, so wall-clock generation time tracks output-token count almost
@@ -215,9 +219,9 @@ The same hotspot analysis (`python bench/hotspots.py`) points at the next big
 token sinks worth packaging:
 
 - **201/Created results.** `CreatedAtAction(nameof(Get), new { id = x.Id }, x)`
-  is about 11 tokens, and a fused `created(x)` would gut that.
-- **`[ProducesResponseType(...)]`.** About 7 tokens each, and they stack up on
-  documented APIs, so short attribute forms (`[P200]`, `[P404]`) pay off fast.
+  is heavy; a fused `created(x)` cuts it by roughly 70%.
+- **`[ProducesResponseType(...)]`.** Short attribute forms (`[P200]`, `[P404]`)
+  save around 70% each, and they stack up on documented APIs.
 - **Config binding.** `Configuration.GetSection("X").Get<T>()` becomes `cfg.bind<T>("X")`.
 - **JSON.** `JsonSerializer.Serialize/Deserialize` shorteners.
 

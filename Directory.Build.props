@@ -13,13 +13,18 @@
     <Company>Smoower</Company>
     <Product>Smoower.Minified</Product>
     <Version>0.1.0</Version>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/smoower/dotnet-minified</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/smoower/dotnet-minified</PackageProjectUrl>
     <PackageTags>ai;tokens;minified;codegen;smoower;aspnetcore;efcore</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <!-- Pack the source-available LICENSE into every package. -->
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)LICENSE" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
 
   <!-- Default target set for the libraries. Apps/tests override with a single TFM. -->
   <PropertyGroup>

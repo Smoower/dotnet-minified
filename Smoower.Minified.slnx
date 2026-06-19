@@ -7,6 +7,11 @@
     <Project Path="src/Smoower.Minified.Core/Smoower.Minified.Core.csproj" />
     <Project Path="src/Smoower.Minified.Dapper/Smoower.Minified.Dapper.csproj" />
     <Project Path="src/Smoower.Minified.EFCore/Smoower.Minified.EFCore.csproj" />
+    <Project Path="src/Smoower.Minified.EFCore.InMemory/Smoower.Minified.EFCore.InMemory.csproj" />
+    <Project Path="src/Smoower.Minified.EFCore.Npgsql/Smoower.Minified.EFCore.Npgsql.csproj" />
+    <Project Path="src/Smoower.Minified.EFCore.Sqlite/Smoower.Minified.EFCore.Sqlite.csproj" />
+    <Project Path="src/Smoower.Minified.EFCore.SqlServer/Smoower.Minified.EFCore.SqlServer.csproj" />
+    <Project Path="src/Smoower.Minified.Extensions/Smoower.Minified.Extensions.csproj" />
     <Project Path="src/Smoower.Minified.Hosting/Smoower.Minified.Hosting.csproj" />
     <Project Path="src/Smoower.Minified.Http/Smoower.Minified.Http.csproj" />
     <Project Path="src/Smoower.Minified.Json.Newtonsoft/Smoower.Minified.Json.Newtonsoft.csproj" />

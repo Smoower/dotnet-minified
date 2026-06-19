@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(SmoowerLibTargets)</TargetFrameworks>
+    <PackageId>Smoower.Minified.Extensions</PackageId>
+    <Description>Compact helpers over core .NET / BCL types for AI-generated code: an injectable Clock plus DateTime and TimeSpan shorteners. Only wraps multi-token BCL members where it actually cuts tokens.</Description>
+  </PropertyGroup>
+
+</Project>

@@ -3,13 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Smoower.Minified.Hosting;
 using Smoower.Minified.SampleApi;
 
-var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
-builder.Services.AddDbContext<AppDb>(o => o.UseInMemoryDatabase("sample"));
-builder.Services.single<Clock>();
-builder.Services.scoped<IValidator<UserIn>, UserInValidator>();
+var b = WebApplication.CreateBuilder(args);
+b.Services.ctrl().mem<AppDb>("sample").single<Clock>().scoped<IValidator<UserIn>, UserInValidator>();
 
-var app = builder.Build();
+var app = b.Build();
 
 using (var scope = app.Services.CreateScope())
 {

@@ -53,6 +53,26 @@ public static class QueryExtensions
     public static Task<int> cnt<T>(this IQueryable<T> q, CancellationToken ct = default)
         => q.CountAsync(ct);
 
+    public static Task<TResult> max<T, TResult>(this IQueryable<T> q, Expression<Func<T, TResult>> selector, CancellationToken ct = default)
+        => q.MaxAsync(selector, ct);
+
+    public static Task<TResult> min<T, TResult>(this IQueryable<T> q, Expression<Func<T, TResult>> selector, CancellationToken ct = default)
+        => q.MinAsync(selector, ct);
+
+    public static IQueryable<T> ntir<T>(this IQueryable<T> q) where T : class
+        => q.AsNoTrackingWithIdentityResolution();
+
+    public static IIncludableQueryable<TEntity, TProperty> tinc<TEntity, TPrev, TProperty>(
+        this IIncludableQueryable<TEntity, IEnumerable<TPrev>> q, Expression<Func<TPrev, TProperty>> path) where TEntity : class
+        => q.ThenInclude(path);
+
+    public static IIncludableQueryable<TEntity, TProperty> tinc<TEntity, TPrev, TProperty>(
+        this IIncludableQueryable<TEntity, TPrev> q, Expression<Func<TPrev, TProperty>> path) where TEntity : class
+        => q.ThenInclude(path);
+
+    public static IQueryable<IGrouping<TKey, T>> gb<T, TKey>(this IQueryable<T> q, Expression<Func<T, TKey>> key)
+        => q.GroupBy(key);
+
     // Synchronous terminators (suffix S). See WriteExtensions for the rationale:
     // async stays unmarked because that's where the token savings are.
     public static List<T> lstS<T>(this IQueryable<T> q) => q.ToList();

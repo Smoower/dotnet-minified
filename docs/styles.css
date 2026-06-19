@@ -60,6 +60,7 @@ a:hover { text-decoration: underline; }
   border-left: 2px solid transparent;
 }
 .sidebar nav a:hover { color: var(--text); text-decoration: none; background: #ffffff08; }
+.sidebar nav a.active { color: var(--text); font-weight: 600; background: #ffffff10; }
 .sidebar nav a.group { color: var(--text); font-weight: 600; margin-top: 14px; }
 .sidebar nav code { font-family: var(--mono); font-size: 13px; }
 
