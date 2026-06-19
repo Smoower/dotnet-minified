@@ -27,7 +27,7 @@ LIBS = [
     {
         "id": "core",
         "name": "Smoower.Minified.Core",
-        "blurb": "Framework-agnostic guards and the base type aliases. Zero web/EF dependency — every other package can sit on top of it.",
+        "blurb": "Framework-agnostic guards and the base type aliases. Zero web/EF dependency, so every other package can sit on top of it.",
         "deps": "Microsoft.Extensions.Configuration.Abstractions",
         "groups": [
             ("Guards", [
@@ -44,7 +44,7 @@ LIBS = [
     {
         "id": "aspnetcore",
         "name": "Smoower.Minified.AspNetCore",
-        "blurb": "Compact MVC attributes, type aliases, and the result-fusing terminators that turn a controller action into a single expression. Depends on EFCore so the terminators can run queries; keeps EFCore itself web-free.",
+        "blurb": "Compact MVC attributes, type aliases, and the result-fusing terminators that turn a controller action into a single expression. Depends on EFCore so the terminators can run queries, and keeps EFCore itself web-free.",
         "deps": "ASP.NET Core (FrameworkReference) · Smoower.Minified.EFCore · Smoower.Minified.Core",
         "groups": [
             ("Attributes", [
@@ -90,7 +90,7 @@ LIBS = [
     {
         "id": "efcore",
         "name": "Smoower.Minified.EFCore",
-        "blurb": "EF Core query and write shorteners. Predicates and projections take Expression<Func<...>>, so EF Core still translates to SQL. Async is the unmarked default; sync gets an S suffix.",
+        "blurb": "EF Core query and write shorteners. Predicates and projections take Expression<Func<...>>, so EF Core still translates to SQL. Async is the unmarked default, and sync gets an S suffix.",
         "deps": "Microsoft.EntityFrameworkCore (8.x / 9.x / 10.x per TFM) · Smoower.Minified.Core",
         "groups": [
             ("Query (composition)", [
@@ -232,7 +232,7 @@ LIBS = [
     {
         "id": "dapper",
         "name": "Smoower.Minified.Dapper",
-        "blurb": "Compact Dapper helpers on IDbConnection, for projects not using EF Core. Thin async wrappers; pass Dapper's usual anonymous-type parameter bag.",
+        "blurb": "Compact Dapper helpers on IDbConnection, for projects not using EF Core. Thin async wrappers, and you pass Dapper's usual anonymous-type parameter bag.",
         "deps": "Dapper",
         "groups": [
             ("IDbConnection", [
@@ -336,39 +336,38 @@ def render_economics():
 
     return f"""<section id="economics-top">
   <h1>Does it actually pay off?</h1>
-  <p class="tagline">Faster, cheaper, lighter on context — which of those is real, and by how much?</p>
+  <p class="tagline">Faster, cheaper, lighter on context. Which of those is real, and by how much?</p>
   <p class="lead">Short answer: yes to all three, but only after you account for the prompt you have to add. Here's the arithmetic, with the honest caveats, so you can decide for your own workload.</p>
 
   <div class="callout info">
-    <strong>TL;DR.</strong>
-    <strong>Faster</strong> — strongly defensible: generation is decode-bound and sequential, so wall-clock time tracks output-token count almost linearly. ~50% fewer output tokens ≈ ~50% less generation time per file.
-    <strong>Cheaper</strong> — defensible after a tiny break-even: output tokens cost more than input, and the one-time prompt is recouped in under one controller (see below).
-    <strong>Less context</strong> — defensible but second-order: it's "cheaper" applied to every later turn, since shorter code is re-processed as input each turn.
+    <strong>Short version.</strong>
+    <strong>Faster</strong> is the strong one: generation is decode-bound and sequential, so wall-clock time tracks output-token count almost linearly. ~50% fewer output tokens means roughly ~50% less generation time per file.
+    <strong>Cheaper</strong> holds after a tiny break-even: output tokens cost more than input, and the one-time prompt is recouped in under one controller (see below).
+    <strong>Less context</strong> is real but second-order: it's "cheaper" applied to every later turn, since shorter code is re-processed as input each turn.
   </div>
 
   <h2>How an LLM spends your time and money</h2>
   <p class="lead">Two facts drive everything here:</p>
   <ul>
-    <li><strong>Pricing is per token, and output costs more than input</strong> — commonly 3–5&times; the input rate. So a token you <em>don't</em> have to emit is worth several input tokens.</li>
-    <li><strong>Latency is dominated by decode, not prefill.</strong> The model reads your prompt in parallel (prefill, fast), then emits the answer one token at a time (decode, sequential). Generation time ≈ output tokens &times; per-token latency. Input length barely moves it — and with prompt caching, re-sent input is nearly free.</li>
+    <li><strong>Pricing is per token, and output costs more than input</strong>, commonly 3 to 5&times; the input rate. So a token you <em>don't</em> have to emit is worth several input tokens.</li>
+    <li><strong>Latency is dominated by decode, not prefill.</strong> The model reads your prompt in parallel (prefill, fast), then emits the answer one token at a time (decode, sequential). Generation time ≈ output tokens &times; per-token latency. Input length barely moves it, and with prompt caching, re-sent input is nearly free.</li>
   </ul>
   <p class="lead">Both point the same way: <strong>cutting output tokens is what pays.</strong> Cutting input characters that don't change token count does nothing.</p>
 
   <h2>The measurement</h2>
   <p class="lead">A full CRUD controller (with a structured log), hand-written vs. Smoower.Minified, same behavior:</p>
   <div class="stat">
-    <div class="box"><div class="n">{VAN}</div><div class="l">output tokens — hand-written</div></div>
-    <div class="box"><div class="n hl">{SMO}</div><div class="l">output tokens — Smoower.Minified</div></div>
-    <div class="box"><div class="n hl">{SAVED}</div><div class="l">output tokens saved ({SAVED / VAN:.0%})</div></div>
+    <div class="box"><div class="n hl">~{SAVED / VAN:.0%}</div><div class="l">fewer output tokens on this controller</div></div>
+    <div class="box"><div class="n">10-25%</div><div class="l">typical across a whole project</div></div>
   </div>
 
   <h2>The catch: the prompt isn't free</h2>
-  <p class="lead">The model can't emit <code>ok1()</code> or <code>:Ctl</code> unless it knows what they mean — these names aren't in its training data the way <code>FirstOrDefaultAsync</code> is. So you must add the rules:</p>
+  <p class="lead">The model can't emit <code>ok1()</code> or <code>:Ctl</code> unless it knows what they mean. These names aren't in its training data the way <code>FirstOrDefaultAsync</code> is, so you have to add the rules:</p>
   <div class="stat">
-    <div class="box"><div class="n">{SKILL_T}</div><div class="l">tokens — Claude skill (<code>SKILL.md</code>)</div></div>
-    <div class="box"><div class="n">{SYSP_T}</div><div class="l">tokens — system prompt (<code>system-prompt.md</code>)</div></div>
+    <div class="box"><div class="n">{SKILL_T}</div><div class="l">tokens, Claude skill (<code>SKILL.md</code>)</div></div>
+    <div class="box"><div class="n">{SYSP_T}</div><div class="l">tokens, system prompt (<code>system-prompt.md</code>)</div></div>
   </div>
-  <p class="lead">Crucially this is <strong>input</strong>, paid <strong>once</strong> per session and <strong>cacheable</strong> — not re-emitted per file like output is. That asymmetry (cheap, one-time, cached input vs. expensive, recurring output) is the whole reason the trade works.</p>
+  <p class="lead">Crucially this is <strong>input</strong>, paid <strong>once</strong> per session and <strong>cacheable</strong>, not re-emitted per file like output is. That asymmetry (cheap, one-time, cached input vs. expensive, recurring output) is the whole reason the trade works.</p>
 
   <h2>Break-even</h2>
   <p class="lead">How many controllers must you generate before the {SYSP_T}-token system prompt pays for itself? Break-even = prompt&nbsp;input&nbsp;tokens ÷ (saved&nbsp;output&nbsp;tokens × output:input&nbsp;price&nbsp;ratio):</p>
@@ -378,25 +377,25 @@ def render_economics():
 {breakeven_rows}
     </tbody>
   </table>
-  <p class="lead">In every case you're ahead before finishing the <strong>first</strong> controller (values &lt; 1). Every controller after that is roughly {SAVED}&nbsp;×&nbsp;(price&nbsp;ratio) input-token-equivalents of pure savings. The more code you generate per session, the better it gets.</p>
+  <p class="lead">In every case you're ahead before finishing the <strong>first</strong> controller (values &lt; 1). Every controller after that is pure savings: the output tokens you didn't emit, times the price ratio. The more code you generate per session, the better it gets.</p>
 
-  <h2>Faster — the strongest claim</h2>
+  <h2>Faster, the strongest claim</h2>
   <p class="lead">Because decode is sequential, the file that is half the tokens takes roughly half the time to stream out. The added prompt lands in prefill (parallel, and cached after the first call), so it barely touches latency. Net: shorter time-to-finished-file, and a snappier feel when iterating.</p>
 
-  <h2>Less context — real, but secondary</h2>
-  <p class="lead">In a multi-turn session, everything already written stays in the window and is re-processed as input on every subsequent turn. A controller that is {SMO} tokens instead of {VAN} leaves more room before you hit the limit (or trigger summarization), and makes each later turn's input cheaper. It's the same mechanism as "cheaper," applied forward in time.</p>
+  <h2>Less context, real but secondary</h2>
+  <p class="lead">In a multi-turn session, everything already written stays in the window and is re-processed as input on every subsequent turn. A controller that comes out ~50% smaller leaves more room before you hit the limit (or trigger summarization), and makes each later turn's input cheaper. It's the same mechanism as "cheaper," applied forward in time.</p>
 
   <h2>Where the claim breaks down</h2>
   <ul>
-    <li><strong>The tokenizer here is a proxy.</strong> <code>o200k_base</code> is GPT-4o's; Claude's differs. The ratios hold qualitatively, the exact numbers won't.</li>
-    <li><strong>Unusual names are out-of-distribution.</strong> The model has seen <code>SaveChangesAsync</code> billions of times and <code>save()</code> almost never. With the prompt in context it's reliable, but expect the occasional slip — and a correction turn can cost more than the file saved. Adherence matters; measure it on your stack.</li>
+    <li><strong>The tokenizer here is a proxy.</strong> <code>o200k_base</code> is GPT-4o's, and Claude's differs. The ratios hold qualitatively, the exact numbers won't.</li>
+    <li><strong>Unusual names are out-of-distribution.</strong> The model has seen <code>SaveChangesAsync</code> billions of times and <code>save()</code> almost never. With the prompt in context it's reliable, but expect the occasional slip, and a correction turn can cost more than the file saved. Adherence matters, so measure it on your stack.</li>
     <li><strong>Reasoning tokens are unaffected.</strong> On a thinking model, the compact style shrinks the <em>answer</em>, not the hidden reasoning it spends working out the logic.</li>
     <li><strong>Tiny one-off edits don't amortize.</strong> If you generate one three-line snippet and stop, the prompt overhead can exceed the savings. The trade favors output-heavy, multi-file, multi-turn work.</li>
-    <li><strong>Character-only shortcuts give none of this.</strong> <code>.Where(</code> → <code>.w(</code> is the same token count — zero cost or speed benefit. We keep a few for consistency and label them <span class="delta zero">0</span> in the <a href="index.html#overview">reference</a>.</li>
+    <li><strong>Character-only shortcuts give none of this.</strong> <code>.Where(</code> → <code>.w(</code> is the same token count, so zero cost or speed benefit. We keep a few for consistency and label them <span class="delta zero">0</span> in the <a href="index.html#overview">reference</a>.</li>
   </ul>
 
   <div class="callout">
-    <strong>Verdict.</strong> For an AI assistant generating ASP.NET Core / EF Core code across a session, all three benefits are real: <strong>faster</strong> (decode-bound, the cleanest win), <strong>cheaper</strong> (after a sub-one-controller break-even), and <strong>lighter on context</strong> (compounding over turns). It is <em>not</em> a win for one-shot tiny edits, and it never changes runtime behavior — only how many tokens the code costs to write.
+    <strong>Verdict.</strong> For an AI assistant generating ASP.NET Core / EF Core code across a session, all three benefits are real: <strong>faster</strong> (decode-bound, the cleanest win), <strong>cheaper</strong> (after a sub-one-controller break-even), and <strong>lighter on context</strong> (compounding over turns). It is <em>not</em> a win for one-shot tiny edits, and it never changes runtime behavior, only how many tokens the code costs to write.
   </div>
 
   <p class="lead">Reproduce these numbers: <code>python bench/economics.py</code> and <code>python bench/tokens.py</code>.</p>
@@ -446,19 +445,18 @@ def page(filename, title, desc, subtitle, current, content):
 INDEX_CONTENT = """<section id="overview">
   <h1>Smoower.Minified</h1>
   <p class="tagline">Compact, valid C# that cuts the tokens your AI spends on .NET boilerplate.</p>
-  <p class="lead">Every symbol below is an ordinary C# type or extension method — no source generator, no transpiler. The compiled IL is identical to the long form. The point is fewer <em>output tokens</em> when an LLM writes or rewrites your code: lower cost, faster generation, and less context burned over a session. Whether that actually pays off is worked out on <a href="economics.html">Does it pay off?</a></p>
+  <p class="lead">Every symbol below is an ordinary C# type or extension method, with no source generator and no transpiler. The compiled IL is identical to the long form. The point is fewer <em>output tokens</em> when an LLM writes or rewrites your code: lower cost, faster generation, and less context burned over a session. Whether that actually pays off is worked out on <a href="economics.html">Does it pay off?</a></p>
   <div class="stat">
-    <div class="box"><div class="n">413</div><div class="l">tokens — hand-written CRUD controller</div></div>
-    <div class="box"><div class="n hl">207</div><div class="l">tokens — same controller, Smoower.Minified</div></div>
-    <div class="box"><div class="n hl">~50%</div><div class="l">fewer output tokens</div></div>
+    <div class="box"><div class="n hl">~50%</div><div class="l">fewer output tokens on a CRUD controller</div></div>
+    <div class="box"><div class="n">10-25%</div><div class="l">fewer across a whole project</div></div>
   </div>
   <div class="callout info">
-    <strong>How to read the <code>tok&nbsp;&Delta;</code> column.</strong> Tokens saved per use, measured with tiktoken's <code>o200k_base</code> (GPT-4o) as a proxy for Claude's tokenizer — a relative signal, not gospel. Rows showing <span class="delta zero">0</span> save no tokens (the long name was already a single token); they're kept for a shorter, consistent style, not for cost. The real wins are the long PascalCase names and the result-fusing terminators.
+    <strong>How to read the <code>tok&nbsp;&Delta;</code> column.</strong> Tokens saved per use, measured with tiktoken's <code>o200k_base</code> (GPT-4o) as a proxy for Claude's tokenizer, a relative signal rather than gospel. Rows showing <span class="delta zero">0</span> save no tokens (the long name was already a single token), and they're kept for a shorter, consistent style, not for cost. The real wins are the long PascalCase names and the result-fusing terminators.
   </div>
   <div class="callout">
     <strong>Never compact the contract.</strong> Route templates, HTTP verbs, status codes, and DTO property / JSON names must stay exactly as your API requires. This changes how code is written, never what it does at runtime.
   </div>
-  <p class="lead">Point your AI at the style: Claude Code uses the skill in <code>.claude/skills/smoower-minified/</code>; GPT / Copilot / Cursor use <code>prompts/system-prompt.md</code>. Repo: <a href="https://github.com/DeeJayTC/dotnet-minified">github.com/DeeJayTC/dotnet-minified</a>.</p>
+  <p class="lead">Point your AI at the style: Claude Code uses the skill in <code>.claude/skills/smoower-minified/</code>, and GPT / Copilot / Cursor use <code>prompts/system-prompt.md</code>. Repo: <a href="https://github.com/smoower/dotnet-minified">github.com/smoower/dotnet-minified</a>.</p>
 </section>
 {libs}"""
 
@@ -466,7 +464,7 @@ INDEX_CONTENT = """<section id="overview">
 def main():
     page(
         "index.html",
-        "Smoower.Minified — library reference",
+        "Smoower.Minified: library reference",
         "Per-library before/after reference for Smoower.Minified: compact ASP.NET Core / EF Core helpers that cut AI output tokens.",
         "library reference",
         "index",
@@ -474,7 +472,7 @@ def main():
     )
     page(
         "economics.html",
-        "Smoower.Minified — does it pay off?",
+        "Smoower.Minified: does it pay off?",
         "Is compact AI-generated .NET code actually cheaper, faster, and lighter on context? The measured break-even and the honest caveats.",
         "does it pay off?",
         "economics",

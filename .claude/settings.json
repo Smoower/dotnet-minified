@@ -24,7 +24,12 @@
       "PowerShell(dotnet build C:\\\\work\\\\github\\\\DeeJayTC\\\\dotnet-minified\\\\Smoower.Minified.slnx --nologo 2>&1)",
       "Edit(/.claude/skills/smoower-minified/**)",
       "PowerShell(cd C:\\\\work\\\\github\\\\DeeJayTC\\\\dotnet-minified; $h=Get-Content docs/index.html -Raw; \"sections: $\\(\\([regex]::Matches\\($h,'<section id='\\)\\).Count\\) \\(expect 11\\)\"; \"has validation: $\\($h.Contains\\('id=\\\\\"validation\\\\\"'\\)\\)\"; \"has json: $\\($h.Contains\\('id=\\\\\"json\\\\\"'\\)\\)\"; \"nav has Validation: $\\($h.Contains\\('#validation'\\)\\)\")",
-      "PowerShell($r = Invoke-RestMethod \"https://api.nuget.org/v3-flatcontainer/sqlitepclraw.bundle_e_sqlite3/index.json\"; \\($r.versions | Where-Object { $_ -match '^2\\\\.1\\\\.1[0-9]$' -or $_ -match '^3\\\\.' } | Select-Object -Last 8\\) -join ', '; \"latest: $\\($r.versions[-1]\\)\")"
+      "PowerShell($r = Invoke-RestMethod \"https://api.nuget.org/v3-flatcontainer/sqlitepclraw.bundle_e_sqlite3/index.json\"; \\($r.versions | Where-Object { $_ -match '^2\\\\.1\\\\.1[0-9]$' -or $_ -match '^3\\\\.' } | Select-Object -Last 8\\) -join ', '; \"latest: $\\($r.versions[-1]\\)\")",
+      "Read(//c/Users/timca/.claude/**)",
+      "Read(//c/Users/timca/.claude/plugins/**)",
+      "Bash(ls -R \"C:\\\\Work\\\\github\\\\DeeJayTC\\\\Voxtem\\\\.claude\\\\skills\\\\blog-post\" 2>/dev/null)",
+      "Read(//c/Work/github/DeeJayTC/Voxtem/.claude/skills/blog-post/**)",
+      "Bash(python build.py)"
     ]
   }
 }

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Smoower.Minified — library reference</title>
+<title>Smoower.Minified: library reference</title>
 <meta name="description" content="Per-library before/after reference for Smoower.Minified: compact ASP.NET Core / EF Core helpers that cut AI output tokens.">
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -30,23 +30,22 @@
 <section id="overview">
   <h1>Smoower.Minified</h1>
   <p class="tagline">Compact, valid C# that cuts the tokens your AI spends on .NET boilerplate.</p>
-  <p class="lead">Every symbol below is an ordinary C# type or extension method — no source generator, no transpiler. The compiled IL is identical to the long form. The point is fewer <em>output tokens</em> when an LLM writes or rewrites your code: lower cost, faster generation, and less context burned over a session. Whether that actually pays off is worked out on <a href="economics.html">Does it pay off?</a></p>
+  <p class="lead">Every symbol below is an ordinary C# type or extension method, with no source generator and no transpiler. The compiled IL is identical to the long form. The point is fewer <em>output tokens</em> when an LLM writes or rewrites your code: lower cost, faster generation, and less context burned over a session. Whether that actually pays off is worked out on <a href="economics.html">Does it pay off?</a></p>
   <div class="stat">
-    <div class="box"><div class="n">413</div><div class="l">tokens — hand-written CRUD controller</div></div>
-    <div class="box"><div class="n hl">207</div><div class="l">tokens — same controller, Smoower.Minified</div></div>
-    <div class="box"><div class="n hl">~50%</div><div class="l">fewer output tokens</div></div>
+    <div class="box"><div class="n hl">~50%</div><div class="l">fewer output tokens on a CRUD controller</div></div>
+    <div class="box"><div class="n">10-25%</div><div class="l">fewer across a whole project</div></div>
   </div>
   <div class="callout info">
-    <strong>How to read the <code>tok&nbsp;&Delta;</code> column.</strong> Tokens saved per use, measured with tiktoken's <code>o200k_base</code> (GPT-4o) as a proxy for Claude's tokenizer — a relative signal, not gospel. Rows showing <span class="delta zero">0</span> save no tokens (the long name was already a single token); they're kept for a shorter, consistent style, not for cost. The real wins are the long PascalCase names and the result-fusing terminators.
+    <strong>How to read the <code>tok&nbsp;&Delta;</code> column.</strong> Tokens saved per use, measured with tiktoken's <code>o200k_base</code> (GPT-4o) as a proxy for Claude's tokenizer, a relative signal rather than gospel. Rows showing <span class="delta zero">0</span> save no tokens (the long name was already a single token), and they're kept for a shorter, consistent style, not for cost. The real wins are the long PascalCase names and the result-fusing terminators.
   </div>
   <div class="callout">
     <strong>Never compact the contract.</strong> Route templates, HTTP verbs, status codes, and DTO property / JSON names must stay exactly as your API requires. This changes how code is written, never what it does at runtime.
   </div>
-  <p class="lead">Point your AI at the style: Claude Code uses the skill in <code>.claude/skills/smoower-minified/</code>; GPT / Copilot / Cursor use <code>prompts/system-prompt.md</code>. Repo: <a href="https://github.com/DeeJayTC/dotnet-minified">github.com/DeeJayTC/dotnet-minified</a>.</p>
+  <p class="lead">Point your AI at the style: Claude Code uses the skill in <code>.claude/skills/smoower-minified/</code>, and GPT / Copilot / Cursor use <code>prompts/system-prompt.md</code>. Repo: <a href="https://github.com/smoower/dotnet-minified">github.com/smoower/dotnet-minified</a>.</p>
 </section>
 <section id="core">
 <h2>Smoower.Minified.Core</h2>
-<p class="lead">Framework-agnostic guards and the base type aliases. Zero web/EF dependency — every other package can sit on top of it.</p>
+<p class="lead">Framework-agnostic guards and the base type aliases. Zero web/EF dependency, so every other package can sit on top of it.</p>
 <p class="deps"><strong>Depends on:</strong> Microsoft.Extensions.Configuration.Abstractions</p>
 <pre>&lt;PackageReference Include="Smoower.Minified.Core" Version="0.1.0" /&gt;</pre>
 <h3>Guards</h3>
@@ -63,7 +62,7 @@
 </section>
 <section id="aspnetcore">
 <h2>Smoower.Minified.AspNetCore</h2>
-<p class="lead">Compact MVC attributes, type aliases, and the result-fusing terminators that turn a controller action into a single expression. Depends on EFCore so the terminators can run queries; keeps EFCore itself web-free.</p>
+<p class="lead">Compact MVC attributes, type aliases, and the result-fusing terminators that turn a controller action into a single expression. Depends on EFCore so the terminators can run queries, and keeps EFCore itself web-free.</p>
 <p class="deps"><strong>Depends on:</strong> ASP.NET Core (FrameworkReference) · Smoower.Minified.EFCore · Smoower.Minified.Core</p>
 <pre>&lt;PackageReference Include="Smoower.Minified.AspNetCore" Version="0.1.0" /&gt;</pre>
 <h3>Attributes</h3>
@@ -111,7 +110,7 @@
 </section>
 <section id="efcore">
 <h2>Smoower.Minified.EFCore</h2>
-<p class="lead">EF Core query and write shorteners. Predicates and projections take Expression&lt;Func&lt;...&gt;&gt;, so EF Core still translates to SQL. Async is the unmarked default; sync gets an S suffix.</p>
+<p class="lead">EF Core query and write shorteners. Predicates and projections take Expression&lt;Func&lt;...&gt;&gt;, so EF Core still translates to SQL. Async is the unmarked default, and sync gets an S suffix.</p>
 <p class="deps"><strong>Depends on:</strong> Microsoft.EntityFrameworkCore (8.x / 9.x / 10.x per TFM) · Smoower.Minified.Core</p>
 <pre>&lt;PackageReference Include="Smoower.Minified.EFCore" Version="0.1.0" /&gt;</pre>
 <h3>Query (composition)</h3>
@@ -251,7 +250,7 @@
 </section>
 <section id="dapper">
 <h2>Smoower.Minified.Dapper</h2>
-<p class="lead">Compact Dapper helpers on IDbConnection, for projects not using EF Core. Thin async wrappers; pass Dapper&#x27;s usual anonymous-type parameter bag.</p>
+<p class="lead">Compact Dapper helpers on IDbConnection, for projects not using EF Core. Thin async wrappers, and you pass Dapper&#x27;s usual anonymous-type parameter bag.</p>
 <p class="deps"><strong>Depends on:</strong> Dapper</p>
 <pre>&lt;PackageReference Include="Smoower.Minified.Dapper" Version="0.1.0" /&gt;</pre>
 <h3>IDbConnection</h3>

@@ -14,9 +14,9 @@
     <Product>Smoower.Minified</Product>
     <Version>0.1.0</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <RepositoryUrl>https://github.com/DeeJayTC/dotnet-minified</RepositoryUrl>
+    <RepositoryUrl>https://github.com/smoower/dotnet-minified</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/DeeJayTC/dotnet-minified</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/smoower/dotnet-minified</PackageProjectUrl>
     <PackageTags>ai;tokens;minified;codegen;smoower;aspnetcore;efcore</PackageTags>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
