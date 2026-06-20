@@ -60,6 +60,17 @@ dotnet add package Smoower.Minified.EFCore
 
 Your next controller comes out compact. The [Quickstart](https://smoower.github.io/dotnet-minified/quickstart.html) and [Installation](https://smoower.github.io/dotnet-minified/installation.html) guides cover the AI-wired and by-hand paths.
 
+### Use it in Claude Code
+
+Smoower.Minified ships as a Claude Code plugin. Install it from Anthropic's community marketplace and the skill applies the compact style automatically — it asks which compaction level to use first:
+
+```
+/plugin marketplace add anthropics/claude-plugins-community
+/plugin install smoower-minified@claude-community
+```
+
+It auto-invokes on any project that references the `Smoower.Minified.*` packages, or call it explicitly with `/smoower-minified:dotnet`.
+
 ## What it looks like
 
 Same action, hand-written and with Smoower.Minified. Identical behavior, identical compiled IL.

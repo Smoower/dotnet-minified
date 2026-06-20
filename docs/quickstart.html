@@ -38,7 +38,13 @@
 
   <h2>Let your AI set it up</h2>
   <p class="lead">Paste <code>prompts/setup-prompt.md</code> into your assistant in a new or existing repo. It detects the project (or scaffolds a Web API in an empty one), installs the packages it needs, writes <code>GlobalUsings.cs</code>, adds the compact-style rules to your <code>CLAUDE.md</code> / <code>copilot-instructions.md</code>, and builds to verify. It is safe to re-run; it only adds what is missing.</p>
-  <div class="callout info"><strong>Claude Code</strong> users can skip the paste &mdash; the repo ships a skill at <code>.claude/skills/smoower-minified/</code>; just ask it to &ldquo;set up Smoower.Minified in this project.&rdquo;</div>
+  <div class="callout info"><strong>Claude Code</strong> users can skip the paste &mdash; the repo ships a skill at <code>.claude/skills/dotnet/</code>; just ask it to &ldquo;set up Smoower.Minified in this project.&rdquo;</div>
+
+  <h2>Or install the Claude Code plugin</h2>
+  <p class="lead">Smoower.Minified ships as a Claude Code plugin on Anthropic&rsquo;s community marketplace. Add it once and the skill applies the compact style automatically &mdash; it even asks which <a href="compaction-levels.html">compaction level</a> to use before it generates:</p>
+  <pre>/plugin marketplace add anthropics/claude-plugins-community
+/plugin install smoower-minified@claude-community</pre>
+  <p class="lead">It auto-invokes on any project that references the <code>Smoower.Minified.*</code> packages; call it explicitly with <code>/smoower-minified:dotnet</code>.</p>
 
   <h2>Or three small steps by hand</h2>
   <pre># 1 — add the packages (ASP.NET Core backend set)

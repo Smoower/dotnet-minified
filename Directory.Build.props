@@ -12,7 +12,7 @@
     <Authors>Smoower</Authors>
     <Company>Smoower</Company>
     <Product>Smoower.Minified</Product>
-    <Version>0.3.0</Version>
+    <Version>0.4.0</Version>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <RepositoryUrl>https://github.com/smoower/dotnet-minified</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

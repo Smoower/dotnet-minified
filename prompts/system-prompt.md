@@ -2,7 +2,7 @@
 
 Paste this as a system prompt (ChatGPT/GPT-4o/o-series), or drop it into
 `.github/copilot-instructions.md` (GitHub Copilot) or `.cursor/rules/smoower.mdc`
-(Cursor). Claude Code users: use the skill in `.claude/skills/smoower-minified/`
+(Cursor). Claude Code users: use the skill in `.claude/skills/dotnet/`
 instead — it's the same rules.
 
 > Setting up a repo from scratch? Use [setup-prompt.md](setup-prompt.md) first —

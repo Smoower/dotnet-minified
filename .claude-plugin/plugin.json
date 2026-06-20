@@ -1,0 +1,10 @@
+{
+  "name": "smoower-minified",
+  "description": "Generate compact ASP.NET Core, Minimal API, EF Core, and xUnit test code with the Smoower.Minified helpers — same IL, fewer output tokens. Applies when a project references the Smoower.Minified.* packages.",
+  "version": "0.4.0",
+  "author": { "name": "Smoower" },
+  "homepage": "https://smoower.github.io/dotnet-minified/",
+  "repository": "https://github.com/Smoower/dotnet-minified",
+  "license": "LicenseRef-Smoower-Minified",
+  "keywords": ["dotnet", "aspnetcore", "efcore", "minimal-api", "xunit", "tokens", "ai", "codegen", "smoower"]
+}

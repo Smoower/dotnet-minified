@@ -13,7 +13,7 @@ def read(p):
     with open(os.path.join(ROOT, p), encoding="utf-8") as f:
         return f.read()
 
-skill = t(read(".claude/skills/smoower-minified/SKILL.md"))
+skill = t(read(".claude/skills/dotnet/SKILL.md"))
 sysp = t(read("prompts/system-prompt.md"))
 
 # Controller measurement from bench/tokens.py

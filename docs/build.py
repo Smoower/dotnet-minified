@@ -430,7 +430,13 @@ QUICKSTART = """<section>
 
   <h2>Let your AI set it up</h2>
   <p class="lead">Paste <code>prompts/setup-prompt.md</code> into your assistant in a new or existing repo. It detects the project (or scaffolds a Web API in an empty one), installs the packages it needs, writes <code>GlobalUsings.cs</code>, adds the compact-style rules to your <code>CLAUDE.md</code> / <code>copilot-instructions.md</code>, and builds to verify. It is safe to re-run; it only adds what is missing.</p>
-  <div class="callout info"><strong>Claude Code</strong> users can skip the paste &mdash; the repo ships a skill at <code>.claude/skills/smoower-minified/</code>; just ask it to &ldquo;set up Smoower.Minified in this project.&rdquo;</div>
+  <div class="callout info"><strong>Claude Code</strong> users can skip the paste &mdash; the repo ships a skill at <code>.claude/skills/dotnet/</code>; just ask it to &ldquo;set up Smoower.Minified in this project.&rdquo;</div>
+
+  <h2>Or install the Claude Code plugin</h2>
+  <p class="lead">Smoower.Minified ships as a Claude Code plugin on Anthropic&rsquo;s community marketplace. Add it once and the skill applies the compact style automatically &mdash; it even asks which <a href="compaction-levels.html">compaction level</a> to use before it generates:</p>
+  <pre>/plugin marketplace add anthropics/claude-plugins-community
+/plugin install smoower-minified@claude-community</pre>
+  <p class="lead">It auto-invokes on any project that references the <code>Smoower.Minified.*</code> packages; call it explicitly with <code>/smoower-minified:dotnet</code>.</p>
 
   <h2>Or three small steps by hand</h2>
   <pre># 1 — add the packages (ASP.NET Core backend set)
@@ -469,7 +475,7 @@ INSTALLATION = """<section>
   <p class="lead">Add the packages you need, drop the aliases into your project, and point your assistant at the style. Every package is independent &mdash; take only what you use.</p>
 
   <h2>1 &mdash; Add the packages</h2>
-  <p class="lead">All packages are <code>0.3.0</code>, multi-targeting net8.0 / net9.0 / net10.0. The default set for an ASP.NET Core backend:</p>
+  <p class="lead">All packages are <code>0.4.0</code>, multi-targeting net8.0 / net9.0 / net10.0. The default set for an ASP.NET Core backend:</p>
   <pre>dotnet add package Smoower.Minified.Core
 dotnet add package Smoower.Minified.AspNetCore
 dotnet add package Smoower.Minified.EFCore
@@ -477,8 +483,8 @@ dotnet add package Smoower.Minified.Hosting
 dotnet add package Smoower.Minified.Logging
 dotnet add package Smoower.Minified.Validation</pre>
   <p class="lead">Or as <code>PackageReference</code> entries &mdash; take only what you use (see <a href="libraries.html">Libraries</a>):</p>
-  <pre>&lt;PackageReference Include="Smoower.Minified.AspNetCore" Version="0.3.0" /&gt;
-&lt;PackageReference Include="Smoower.Minified.EFCore" Version="0.3.0" /&gt;</pre>
+  <pre>&lt;PackageReference Include="Smoower.Minified.AspNetCore" Version="0.4.0" /&gt;
+&lt;PackageReference Include="Smoower.Minified.EFCore" Version="0.4.0" /&gt;</pre>
 
   <h2>2 &mdash; Drop in the aliases</h2>
   <p class="lead">Add the imports and aliases to a <code>GlobalUsings.cs</code> in your project. Aliases are not transitive across assemblies, so they live in <em>your</em> code (copy from the <code>samples/Smoower.Minified.SampleApi/GlobalUsings.cs</code>):</p>
@@ -494,7 +500,7 @@ global using Cfg = Microsoft.Extensions.Configuration.IConfiguration;
 global using Tr  = System.Threading.Tasks.Task&lt;Microsoft.AspNetCore.Mvc.IActionResult&gt;;</pre>
 
   <h2>3 &mdash; Point your assistant at the style</h2>
-  <p class="lead"><strong>Claude Code</strong> uses the bundled skill at <code>.claude/skills/smoower-minified/</code> &mdash; just ask it to use Smoower.Minified. <strong>GPT / Copilot / Cursor</strong> take <code>prompts/system-prompt.md</code> as a system prompt or rules file. A short version to drop into any chat:</p>
+  <p class="lead"><strong>Claude Code</strong> uses the bundled skill at <code>.claude/skills/dotnet/</code> &mdash; just ask it to use Smoower.Minified. <strong>GPT / Copilot / Cursor</strong> take <code>prompts/system-prompt.md</code> as a system prompt or rules file. A short version to drop into any chat:</p>
   <pre>Generate ASP.NET Core / EF Core code using the Smoower.Minified compact
 helpers ([API]/[HG]/[HPO], :Ctl, Tr, .w/.s/.nt/.lst/.one,
 db.save/db.add, ok1/okl/okId/delById, nil()). Code only, no comments,

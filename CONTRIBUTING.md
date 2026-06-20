@@ -32,8 +32,14 @@ call.
 - `bench/` — the token benchmarks and the tokenizers.
 - `tools/pack.py` — packs an authored `.cs` into its `.min.cs` whitespace-packed
   mirror.
-- `prompts/`, `.claude/skills/smoower-minified/`, `CLAUDE.md` — the generation
+- `prompts/`, `.claude/skills/dotnet/`, `CLAUDE.md` — the generation
   rules that teach an assistant to emit the compact style. Keep them in sync.
+- `.claude-plugin/plugin.json` + `skills/dotnet/SKILL.md` — the Claude
+  Code plugin published to the marketplace. The `skills/` copy must stay
+  byte-identical to `.claude/skills/dotnet/SKILL.md` (the in-repo dev
+  copy); after editing the skill, re-sync it:
+  `cp .claude/skills/dotnet/SKILL.md skills/dotnet/SKILL.md`,
+  then `claude plugin validate .`.
 
 ## Build & test
 
@@ -59,7 +65,7 @@ three in Release. Make sure the suite is green before opening a PR.
    python docs/build.py
    ```
 5. **Update the generation rules** if you added a new surface: `prompts/system-prompt.md`,
-   the skill under `.claude/skills/smoower-minified/`, and `CLAUDE.md`.
+   the skill under `.claude/skills/dotnet/`, and `CLAUDE.md`.
 6. **Measure it** (next section) and put the numbers in your PR.
 
 The forbidden-token checker (`tests/Smoower.Minified.Tests/ForbiddenTokenCheckerTests.cs`)

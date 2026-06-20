@@ -1,13 +1,14 @@
 ---
-name: smoower-minified
-description: Generate ASP.NET Core / EF Core code using the Smoower.Minified compact syntax to cut output tokens (cost + generation time). Use whenever writing or editing .NET API controllers, EF Core queries, DI registration, logging, HttpClient, or Redis code in a project that references the Smoower.Minified.* packages.
+name: dotnet
+description: Generate compact ASP.NET Core (MVC or Minimal API), EF Core, and xUnit test code using the Smoower.Minified helpers to cut output tokens (cost + generation time). Use whenever writing or editing .NET API controllers, minimal-API endpoints, EF Core queries, DI registration, logging, HttpClient, Redis, or tests in a project that references the Smoower.Minified.* packages.
 ---
 
 # Smoower.Minified generation rules
 
 Write the most compact valid C# using the `Smoower.Minified.*` helpers. The point
-is fewer output tokens: lower API cost and faster generation. Output **code only**
-unless asked to explain.
+is fewer output tokens: lower API cost and faster generation — and it compounds on
+every further agent step, since each turn re-reads and re-emits the code. Output
+**code only** unless asked to explain.
 
 ## Setup — ask the level first
 
@@ -55,6 +56,11 @@ exception aliases (`KNF`/`IOE`/`UAE`/`AE`), attribute aliases (`JPN`/`JI`/`JC`/`
 `JPO`/`Tbl`/`NM`/`Req`/`MaxLen`/`StrLen`/`Rng`), and the controller result helpers on
 `Ctl` (`nf`/`nc`/`un`/`forb`/`bad`/`unp`). For auth add `Smoower.Minified.Identity`.
 
+A **Minimal API** project (`Smoower.Minified.MinimalApi`) also declares `R`
+(`Microsoft.AspNetCore.Http.Results`) and `Ir` (`Task<IResult>`). A **test**
+project imports `Smoower.Minified.Testing` and declares the attribute aliases
+`F`/`Th`/`In`/`Mem` (Fact/Theory/InlineData/MemberData).
+
 ## Use these instead of the long forms
 
 | Use | Not |
@@ -88,6 +94,42 @@ Generics can't be aliased, so use `ILogger<T>` and `ActionResult<T>` directly.
 Sync EF variants exist with an `S` suffix (`saveS`, `lstS`, `oneS`, ...) for code
 that must be synchronous.
 
+## Minimal APIs (alternative to controllers)
+
+When the project uses Minimal APIs instead of MVC controllers, map endpoints with
+the verb shorteners and group with `grp`; the same result-fusing terminators apply,
+returning `IResult`.
+
+| Use | Not |
+| --- | --- |
+| `app.g(r,h)` `app.po(r,h)` `app.pu(r,h)` `app.pa(r,h)` `app.dl(r,h)` | `MapGet` `MapPost` `MapPut` `MapPatch` `MapDelete` |
+| `app.grp("/users")` | `MapGroup("/users")` |
+| `.auth()` `.anon()` | `RequireAuthorization()` `AllowAnonymous()` |
+| `R.BadRequest()` `R.NotFound()` `R.NoContent()` | `Results.BadRequest()` `Results.NotFound()` ... |
+| `q.ok1()` `q.okl()` `set.okId(k)` `db.okNew(e)` `db.delById<T>(k)` → `IResult` | manual `Results.Ok(...)`/`Results.NotFound()` |
+| async handler return `Ir` | `Task<IResult>` |
+
+Pick one style per file — don't mix the controller and minimal-API terminators in
+the same file (the names are identical; only the return type differs, `IActionResult`
+vs `IResult`).
+
+## Tests (xUnit + `Smoower.Minified.Testing`)
+
+Tests are code too — write them compact. The assertions are fluent, **actual-first**,
+and call xUnit's `Assert` underneath (same behavior); the value-returning ones chain
+(`x.notNul().eq(expected)`).
+
+| Use | Not |
+| --- | --- |
+| `[F]` `[Th]` `[In(...)]` `[Mem(...)]` | `[Fact]` `[Theory]` `[InlineData]` `[MemberData]` |
+| `actual.eq(e)` `.neq(e)` `.eqSeq(e)` (collections) | `Assert.Equal` `Assert.NotEqual` |
+| `x.tru()` `x.fls()` `x.nul()` `x.notNul()` | `Assert.True` `Assert.False` `Assert.Null` `Assert.NotNull` |
+| `x.isType<T>()` `x.isAssignable<T>()` | `Assert.IsType` `Assert.IsAssignableFrom` |
+| `a.same(e)` `a.notSame(e)` | `Assert.Same` `Assert.NotSame` |
+| `xs.empty()` `xs.notEmpty()` `xs.sole()` `xs.len(n)` | `Assert.Empty` `Assert.NotEmpty` `Assert.Single` |
+| `xs.contains(i)` `xs.has(x=>p)` `str.hasText(s)` | `Assert.Contains` (value / predicate / substring) |
+| `x.inRange(lo,hi)` `act.throws<TEx>()` `act.throwsAsync<TEx>()` | `Assert.InRange` `Assert.Throws` `Assert.ThrowsAsync` |
+
 ## Never compact the contract
 
 Route templates, HTTP verbs, status codes, and the **wire/DB values** (JSON
@@ -98,7 +140,9 @@ but only if you pin the unchanged wire/DB value in an attribute (`[JPN("realName
 only the in-code handle does. Never short-name an enum *type* via `global using`,
 and never change a serialized enum *value* without `[JSEM("realValue")]`.
 
-## Target shape
+## Target shapes
+
+Controller:
 
 ```csharp
 [API,RT("api/users")]
@@ -114,4 +158,23 @@ public class UsersController(AppDb db,ILogger<UsersController> log):Ctl{
  [HD("{id}")]public Tr Del(int id)=>db.delById<User>(id);
 }
 public record UserIn(string Name,string Email);
+```
+
+Same endpoints as a Minimal API (in `Program.cs`):
+
+```csharp
+var u=app.grp("/api/users");
+u.g("/{id}",(int id,AppDb db)=>db.Users.nt().w(x=>x.Id==id).ok1());
+u.g("",(AppDb db)=>db.Users.nt().okl());
+u.po("",async(UserIn r,AppDb db)=>r.Name.nil()?R.BadRequest():await db.okNew(new User{Name=r.Name,Email=r.Email}));
+u.dl("/{id}",(int id,AppDb db)=>db.delById<User>(id));
+```
+
+Test:
+
+```csharp
+public class UsersTests{
+ [F]public async Task Get_404_WhenMissing()=>(await db.Users.w(x=>x.Id==9).ok1()).isType<NotFoundResult>();
+ [Th][In("",false)][In("Ada",true)]public void Name_Validates(string n,bool ok)=>(!n.nil()).eq(ok);
+}
 ```
