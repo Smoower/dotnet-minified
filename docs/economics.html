@@ -34,26 +34,26 @@
 <main class="content" id="top">
 <section>
   <h1>Does it pay off?</h1>
-  <p class="tagline">faster, cheaper, lighter on context &mdash; measured on real production code</p>
-  <p class="lead">The promise is simple: an AI that writes less boilerplate writes faster, costs less, and keeps more of its context window free. To see how much survives contact with real code, Smoower was applied to a slice of a live .NET application &mdash; a handful of production API controllers and a single sprawling EF Core <code>DbContext</code> of nearly two thousand lines &mdash; and the before and after measured with the model&rsquo;s own tokenizer.</p>
+  <p class="tagline">faster, cheaper, lighter on context. measured on real production code.</p>
+  <p class="lead">The promise is simple: an AI that writes less boilerplate writes faster, costs less, and keeps more of its context window free. To see how much of that survives real code, we ran Smoower over a slice of a live .NET app: a handful of production API controllers and one sprawling EF Core <code>DbContext</code> of nearly 2,000 lines. Then measured before and after with the model&rsquo;s own tokenizer.</p>
 
   <h2>What the real code showed</h2>
-  <p class="lead">The compact form came out meaningfully smaller everywhere it touched framework ceremony. Typical API controllers shrank by roughly a third, the most boilerplate-heavy by nearly half. Even the giant <code>DbContext</code> &mdash; almost entirely schema configuration &mdash; came down by about a quarter once the EF Core configuration helpers were applied. Across the whole sample, on untouched real-world code, the saving landed around a quarter fewer tokens.</p>
+  <p class="lead">The compact form came out smaller everywhere it touched framework ceremony. Typical controllers dropped around 30%. The most boilerplate-heavy lost up to 50%. Even the giant <code>DbContext</code>, almost all schema config, came down around 25% once the EF Core helpers were applied. Across the whole sample, on untouched real-world code, the saving landed near 25%.</p>
   <div class="stat">
-    <div class="box"><div class="n hl">a third to a half</div><div class="l">on typical API controllers</div></div>
-    <div class="box"><div class="n hl">about a quarter</div><div class="l">across a whole real-world slice, schema config included</div></div>
+    <div class="box"><div class="n hl">up to 50%</div><div class="l">on the most boilerplate-heavy controllers</div></div>
+    <div class="box"><div class="n hl">around 25%</div><div class="l">across a whole real-world slice, schema config included</div></div>
   </div>
 
-  <h2>Faster &mdash; the strongest claim</h2>
-  <p class="lead">Models emit output one token at a time, so the wall-clock time to produce a file tracks its length almost linearly. Halve the ceremony and you roughly halve the time spent streaming it out. The rules prompt is read once, in parallel, and cached &mdash; it barely touches latency. This is the benefit that holds up most cleanly.</p>
+  <h2>Faster: the strongest claim</h2>
+  <p class="lead">Models emit output one token at a time, so the wall-clock time to produce a file tracks its length almost linearly. Cut the ceremony in half and you roughly halve the time spent streaming it out. The rules prompt is read once, in parallel, and cached, so it barely touches latency. This is the benefit that holds up most cleanly.</p>
 
-  <h2>Cheaper &mdash; after a small, one-time cost</h2>
-  <p class="lead">Output tokens are billed, and they cost several times more than input (around 5&times; on current Claude models). The compact code emits fewer of them on every file. Against that sits a one-time cost: a short rules prompt the assistant needs in context &mdash; input rather than output, paid once per session, and cached. On any project that generates more than a file or two it is recouped quickly, and everything after is saving.</p>
+  <h2>Cheaper: after a small, one-time cost</h2>
+  <p class="lead">Output tokens are billed, and they cost several times more than input (around 5x on current Claude models). The compact code emits fewer of them on every file. Against that sits one cost: a short rules prompt the assistant keeps in context. That's input, not output, paid once per session, and cached. On any project that generates more than a file or two it pays for itself fast, and everything after is saving.</p>
 
-  <h2>Lighter on context &mdash; compounding over a session</h2>
-  <p class="lead">In a long session, everything already written is re-read on every later turn. Code that is a quarter to a half smaller leaves more headroom before the window fills, makes each subsequent turn a little cheaper, and pushes summarization later. On subscription tools (Claude Pro / Max, Copilot, Cursor) this is where the value lands: more of your codebase fits at once, agents spend less of their budget regenerating ceremony, and you reach usage limits later in the day.</p>
+  <h2>Lighter on context: compounds over a session</h2>
+  <p class="lead">In a long session, everything already written gets re-read on every later turn. Code that's 25% to 50% smaller leaves more headroom before the window fills, makes each later turn a little cheaper, and pushes summarization further out. On subscription tools (Claude Pro/Max, Copilot, Cursor) this is where the value lands: more of your codebase fits at once, agents spend less of their budget regenerating ceremony, and you hit usage limits later in the day.</p>
 
-  <div class="callout info"><strong>The bottom line.</strong> For an assistant generating ASP.NET Core and EF Core code across a session, all three benefits show up on real code: faster (the cleanest win), cheaper (after a sub-one-file break-even), and lighter on context (compounding over turns) &mdash; and the runtime behaviour is identical, since the compiled IL does not change. The full arithmetic and the per-file numbers are in <code>bench/FINDINGS.md</code>.</div>
+  <div class="callout info"><strong>The bottom line.</strong> For an assistant writing ASP.NET Core and EF Core across a session, all three show up on real code: faster (the cleanest win), cheaper (after a sub-one-file break-even), and lighter on context (it compounds over turns). The runtime behavior is identical, since the compiled IL doesn't change. The full arithmetic and the per-file numbers are in <code>bench/FINDINGS.md</code>.</div>
 
   <h2>Where to next</h2>
 <div class="cards">

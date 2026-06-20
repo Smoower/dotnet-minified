@@ -377,7 +377,7 @@ INDEX = """<section>
   <div class="hero">
     <h1>Same .NET code. Fewer tokens.</h1>
     <p class="tagline">same .NET code &middot; fewer tokens &middot; no magic</p>
-    <p class="sub">Smoower.Minified is a set of tiny C# libraries that shrink the boilerplate-heavy parts of a .NET API &mdash; controllers, EF Core queries, DI, logging &mdash; into short, stable forms an AI assistant can emit in a fraction of the tokens. It is ordinary C#: same IL, no transpiler.</p>
+    <p class="sub">Smoower.Minified is a set of small C# libraries that strip the boilerplate out of .NET APIs (controllers, EF Core queries, DI, logging) and replace it with short, stable forms an AI can emit in a fraction of the tokens. It's plain C#: same IL, no transpiler.</p>
     <div class="badges">
       <span class="badge brand">.NET 8 &middot; 9 &middot; 10</span>
       <span class="badge">no transpiler &middot; same IL</span>
@@ -392,20 +392,20 @@ INDEX = """<section>
   </div>
 
   <h2>What it is</h2>
-  <p class="lead">When an AI assistant writes ASP.NET Core or EF Core code, most of what it types is not your logic &mdash; it is framework ceremony. <code>Task&lt;IActionResult&gt;</code>, <code>FirstOrDefaultAsync</code>, <code>AddScoped</code>, attribute noise, the same controller scaffolding again and again. Every token of that is generated afresh on each write, rewrite, and refactor.</p>
-  <p class="lead">Smoower.Minified swaps that ceremony for short, stable helpers &mdash; <code>Tr</code>, <code>.one()</code>, <code>scoped&lt;&gt;</code>, <code>[HG]</code>, <code>.ok1()</code> &mdash; that compile to the exact same IL. The alias layer is 100% plain C# extension methods, attributes, and type aliases; an opt-in <code>[Crud&lt;&gt;]</code> source generator and deeper levels go further when you want them. The behaviour never changes. Only the number of tokens it takes to write the code does.</p>
+  <p class="lead">When an AI writes ASP.NET Core or EF Core code, most of what it types isn't your logic. It's framework ceremony: <code>Task&lt;IActionResult&gt;</code>, <code>FirstOrDefaultAsync</code>, <code>AddScoped</code>, attribute noise, the same controller scaffolding over and over. Every token of it is regenerated on each write, rewrite, and refactor.</p>
+  <p class="lead">Smoower.Minified swaps that ceremony for short, stable helpers (<code>Tr</code>, <code>.one()</code>, <code>scoped&lt;&gt;</code>, <code>[HG]</code>, <code>.ok1()</code>) that compile to the exact same IL. The alias layer is plain C#: extension methods, attributes, and type aliases. An opt-in <code>[Crud&lt;&gt;]</code> source generator and the deeper levels go further when you want them. The behavior never changes. Only the token count does.</p>
 
   <h2>Why it helps</h2>
   <div class="stat">
-    <div class="box"><div class="n hl">Faster</div><div class="l">generation time tracks output length &mdash; less to type, less to wait for</div></div>
+    <div class="box"><div class="n hl">Faster</div><div class="l">generation time tracks output length. Less to type, less to wait for.</div></div>
     <div class="box"><div class="n hl">Cheaper</div><div class="l">output tokens are billed, and there are simply fewer of them</div></div>
     <div class="box"><div class="n hl">Lighter</div><div class="l">shorter code leaves more room in the context window over a session</div></div>
   </div>
-  <p class="lead">Expect roughly <strong>10&ndash;25% fewer output tokens across a whole project</strong>, and <strong>25&ndash;45% on the boilerplate-heavy controller files</strong> an assistant rewrites most often. The full arithmetic is on <a href="economics.html">Does it pay off?</a></p>
-  <p class="lead"><strong>And it compounds with every agent step.</strong> A modern coding assistant does not write a file once &mdash; it works in a loop: read the code, edit it, re-read it, refactor, run again. Each step re-emits and re-reads the same source, so a token saved is not saved once &mdash; it is saved again on every turn that touches that code, and again as that smaller output becomes the input the next step has to read. The leaner each step, the leaner the one built on top of it, so the gap against the verbose form widens the longer an agent runs.</p>
+  <p class="lead">Expect <strong>10-25% fewer output tokens across a whole project</strong>, and <strong>up to 50% on the boilerplate-heavy controller files</strong> an assistant rewrites most often. The full arithmetic is on <a href="economics.html">Does it pay off?</a></p>
+  <p class="lead"><strong>And it compounds with every agent step.</strong> A coding assistant doesn't write a file once. It works in a loop: read the code, edit it, re-read it, refactor, run again. Each step re-emits and re-reads the same source, so a token saved isn't saved once. It's saved again on every turn that touches that code, and again as that smaller output becomes the input the next step reads. The leaner each step, the leaner the one built on top of it, so the gap against the verbose form widens the longer an agent runs.</p>
 
   <h2>What it saves on real code</h2>
-  <p class="lead">Not a toy benchmark &mdash; these are untouched production files from a live .NET app, rewritten in the compact style and measured with Claude&rsquo;s own tokenizer (<code>claude-opus-4-8</code>). On files that are mostly framework ceremony, the compact form cuts up to half the tokens; spread across a whole application, where most code is business logic that should not compress, the saving settles at up to around a quarter.</p>
+  <p class="lead">Not a toy benchmark. These are untouched production files from a live .NET app, rewritten in the compact style and measured with Claude&rsquo;s own tokenizer (<code>claude-opus-4-8</code>). On files that are mostly framework ceremony, the compact form cuts up to 50% of the tokens. Across a whole application, where most of the code is business logic that shouldn't compress, the saving settles around 25%.</p>
   <table>
   <thead><tr><th>File</th><th>Original</th><th>Smoower</th><th>Saved</th></tr></thead>
   <tbody>
@@ -416,9 +416,9 @@ INDEX = """<section>
     <tr><td><strong>Total</strong></td><td><strong>46,702</strong></td><td><strong>34,079</strong></td><td><span class="delta pos">&minus;12,623 &middot; 27%</span></td></tr>
   </tbody>
   </table>
-  <p class="lead">At Opus 4.8&rsquo;s rate of <strong>$25 per million output tokens</strong>, emitting this sample the verbose way costs <strong>$1.17</strong>; the compact way costs <strong>$0.85</strong> &mdash; about <strong>$0.32 saved every time</strong> these files are written, and AI-generated code is written, rewritten, and refactored over and over across a project&rsquo;s life.</p>
+  <p class="lead">At Opus 4.8&rsquo;s rate of <strong>$25 per million output tokens</strong>, emitting this sample the verbose way costs <strong>$1.17</strong>. The compact way costs <strong>$0.85</strong>. That's <strong>$0.32 saved every time</strong> these files are written, and AI-generated code gets written, rewritten, and refactored over and over across a project's life.</p>
 
-  <div class="callout"><strong>The one rule: never compact the contract.</strong> Route templates, HTTP verbs, status codes, and DTO / JSON names stay exactly as your API requires. Smoower changes how code is written, never what it does at runtime.</div>
+  <div class="callout"><strong>The one rule: never compact the contract.</strong> Route templates, HTTP verbs, status codes, and DTO/JSON names stay exactly as your API requires. Smoower changes how code is written, never what it does at runtime.</div>
 
   <h2>Where to next</h2>
 """
@@ -598,26 +598,26 @@ public async Task&lt;IActionResult&gt; Get(int id)
 
 ECONOMICS = """<section>
   <h1>Does it pay off?</h1>
-  <p class="tagline">faster, cheaper, lighter on context &mdash; measured on real production code</p>
-  <p class="lead">The promise is simple: an AI that writes less boilerplate writes faster, costs less, and keeps more of its context window free. To see how much survives contact with real code, Smoower was applied to a slice of a live .NET application &mdash; a handful of production API controllers and a single sprawling EF Core <code>DbContext</code> of nearly two thousand lines &mdash; and the before and after measured with the model&rsquo;s own tokenizer.</p>
+  <p class="tagline">faster, cheaper, lighter on context. measured on real production code.</p>
+  <p class="lead">The promise is simple: an AI that writes less boilerplate writes faster, costs less, and keeps more of its context window free. To see how much of that survives real code, we ran Smoower over a slice of a live .NET app: a handful of production API controllers and one sprawling EF Core <code>DbContext</code> of nearly 2,000 lines. Then measured before and after with the model&rsquo;s own tokenizer.</p>
 
   <h2>What the real code showed</h2>
-  <p class="lead">The compact form came out meaningfully smaller everywhere it touched framework ceremony. Typical API controllers shrank by roughly a third, the most boilerplate-heavy by nearly half. Even the giant <code>DbContext</code> &mdash; almost entirely schema configuration &mdash; came down by about a quarter once the EF Core configuration helpers were applied. Across the whole sample, on untouched real-world code, the saving landed around a quarter fewer tokens.</p>
+  <p class="lead">The compact form came out smaller everywhere it touched framework ceremony. Typical controllers dropped around 30%. The most boilerplate-heavy lost up to 50%. Even the giant <code>DbContext</code>, almost all schema config, came down around 25% once the EF Core helpers were applied. Across the whole sample, on untouched real-world code, the saving landed near 25%.</p>
   <div class="stat">
-    <div class="box"><div class="n hl">a third to a half</div><div class="l">on typical API controllers</div></div>
-    <div class="box"><div class="n hl">about a quarter</div><div class="l">across a whole real-world slice, schema config included</div></div>
+    <div class="box"><div class="n hl">up to 50%</div><div class="l">on the most boilerplate-heavy controllers</div></div>
+    <div class="box"><div class="n hl">around 25%</div><div class="l">across a whole real-world slice, schema config included</div></div>
   </div>
 
-  <h2>Faster &mdash; the strongest claim</h2>
-  <p class="lead">Models emit output one token at a time, so the wall-clock time to produce a file tracks its length almost linearly. Halve the ceremony and you roughly halve the time spent streaming it out. The rules prompt is read once, in parallel, and cached &mdash; it barely touches latency. This is the benefit that holds up most cleanly.</p>
+  <h2>Faster: the strongest claim</h2>
+  <p class="lead">Models emit output one token at a time, so the wall-clock time to produce a file tracks its length almost linearly. Cut the ceremony in half and you roughly halve the time spent streaming it out. The rules prompt is read once, in parallel, and cached, so it barely touches latency. This is the benefit that holds up most cleanly.</p>
 
-  <h2>Cheaper &mdash; after a small, one-time cost</h2>
-  <p class="lead">Output tokens are billed, and they cost several times more than input (around 5&times; on current Claude models). The compact code emits fewer of them on every file. Against that sits a one-time cost: a short rules prompt the assistant needs in context &mdash; input rather than output, paid once per session, and cached. On any project that generates more than a file or two it is recouped quickly, and everything after is saving.</p>
+  <h2>Cheaper: after a small, one-time cost</h2>
+  <p class="lead">Output tokens are billed, and they cost several times more than input (around 5x on current Claude models). The compact code emits fewer of them on every file. Against that sits one cost: a short rules prompt the assistant keeps in context. That's input, not output, paid once per session, and cached. On any project that generates more than a file or two it pays for itself fast, and everything after is saving.</p>
 
-  <h2>Lighter on context &mdash; compounding over a session</h2>
-  <p class="lead">In a long session, everything already written is re-read on every later turn. Code that is a quarter to a half smaller leaves more headroom before the window fills, makes each subsequent turn a little cheaper, and pushes summarization later. On subscription tools (Claude Pro / Max, Copilot, Cursor) this is where the value lands: more of your codebase fits at once, agents spend less of their budget regenerating ceremony, and you reach usage limits later in the day.</p>
+  <h2>Lighter on context: compounds over a session</h2>
+  <p class="lead">In a long session, everything already written gets re-read on every later turn. Code that's 25% to 50% smaller leaves more headroom before the window fills, makes each later turn a little cheaper, and pushes summarization further out. On subscription tools (Claude Pro/Max, Copilot, Cursor) this is where the value lands: more of your codebase fits at once, agents spend less of their budget regenerating ceremony, and you hit usage limits later in the day.</p>
 
-  <div class="callout info"><strong>The bottom line.</strong> For an assistant generating ASP.NET Core and EF Core code across a session, all three benefits show up on real code: faster (the cleanest win), cheaper (after a sub-one-file break-even), and lighter on context (compounding over turns) &mdash; and the runtime behaviour is identical, since the compiled IL does not change. The full arithmetic and the per-file numbers are in <code>bench/FINDINGS.md</code>.</div>
+  <div class="callout info"><strong>The bottom line.</strong> For an assistant writing ASP.NET Core and EF Core across a session, all three show up on real code: faster (the cleanest win), cheaper (after a sub-one-file break-even), and lighter on context (it compounds over turns). The runtime behavior is identical, since the compiled IL doesn't change. The full arithmetic and the per-file numbers are in <code>bench/FINDINGS.md</code>.</div>
 
   <h2>Where to next</h2>
 """
