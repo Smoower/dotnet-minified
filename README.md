@@ -17,6 +17,30 @@ no magic. Same IL, fewer tokens.
 
 ---
 
+## TL;DR
+
+Smoower.Minified cuts the **output tokens** an AI emits for .NET code by roughly
+**10–25% across a whole project**, and **25–45% in boilerplate-heavy controller
+files**. The tokens are only the mechanism — where the value lands depends on how
+you pay for AI, and it's rarely *just* a smaller bill:
+
+- **Metered / API billing** (you pay per token): fewer output tokens is a
+  directly smaller invoice. Output is the expensive side of the meter (~5× input
+  on current Claude models) and generated code is almost all output.
+- **Subscription tools** (Claude Pro/Max, Copilot, Cursor): the value is
+  operational, not on an invoice. More of your codebase fits in the context
+  window, agents waste less of their turn/session budget regenerating the same
+  ceremony, long sessions stay coherent longer, and you hit usage or rate limits
+  later.
+- **Everyone:** generation time tracks output length, so roughly half the tokens
+  is roughly half the wait.
+
+It's ordinary C# — same IL, no source generator — so none of this costs you any
+runtime behavior. The full arithmetic is on
+[Does it pay off?](https://smoower.github.io/dotnet-minified/economics.html).
+
+---
+
 ## The bill nobody talks about
 
 Here's a perfectly normal controller action. Count the ceremony:

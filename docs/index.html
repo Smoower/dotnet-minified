@@ -35,6 +35,21 @@
     <div class="box"><div class="n hl">Lighter</div><div class="l">shorter code leaves more room in the context window over a session</div></div>
   </div>
 
+  <h2>How it pays off</h2>
+  <p class="lead">The token saving is the mechanism; where it actually lands depends on how you pay for your AI &mdash; and it is rarely just a smaller bill. Expect roughly <strong>10&ndash;25% fewer output tokens across a whole project</strong>, and <strong>25&ndash;45% on the boilerplate-heavy controller files</strong> an assistant rewrites most often.</p>
+  <div class="stat">
+    <div class="box"><div class="n hl">10&ndash;25%</div><div class="l">fewer output tokens across a whole project</div></div>
+    <div class="box"><div class="n hl">25&ndash;45%</div><div class="l">on boilerplate-heavy controller files</div></div>
+  </div>
+
+  <h3>If you pay per token (API / metered)</h3>
+  <p class="lead">Generated code is almost entirely <em>output</em> tokens &mdash; the expensive side of the meter, around 5&times; the price of input on current Claude models. Fewer output tokens is a directly smaller invoice, paid back on every write, rewrite, and refactor of the same file.</p>
+
+  <h3>If you pay a subscription (Claude Pro / Max, Copilot, Cursor)</h3>
+  <p class="lead">There is no per-token line item, so the value is operational rather than financial &mdash; and often the bigger deal. Shorter code means more of your codebase fits in the context window at once; agents spend less of their turn and session budget regenerating the same ceremony instead of doing new work; long sessions stay coherent longer before summarization kicks in; and you reach usage or rate limits later in a working day. You are effectively pushing the cap you are paying around further out.</p>
+
+  <div class="callout info"><strong>Either way, it is faster.</strong> Models decode one token at a time, so wall-clock generation time tracks output length almost linearly &mdash; roughly half the tokens is roughly half the wait, whoever is paying.</div>
+
   <h2>What it saves on real code</h2>
   <p class="lead">Not a toy benchmark &mdash; these are untouched production files from a live .NET app, rewritten in the compact style and measured with Claude&rsquo;s own tokenizer (<code>claude-opus-4-8</code>). On the files that are mostly framework ceremony &mdash; a typical API controller &mdash; the compact form cuts <strong>up to half the tokens</strong>. Spread across a whole application, where most of the code is business logic that does not (and should not) compress, the saving settles at <strong>up to around a quarter</strong>.</p>
   <div class="stat">
