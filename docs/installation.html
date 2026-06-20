@@ -49,7 +49,7 @@ dotnet add package Smoower.Minified.Validation</pre>
 &lt;PackageReference Include="Smoower.Minified.EFCore" Version="0.4.0" /&gt;</pre>
 
   <h2>2 &mdash; Drop in the aliases</h2>
-  <p class="lead">Add the imports and aliases to a <code>GlobalUsings.cs</code> in your project. Aliases are not transitive across assemblies, so they live in <em>your</em> code (copy from the <code>samples/Smoower.Minified.SampleApi/GlobalUsings.cs</code>):</p>
+  <p class="lead">Add the imports and aliases to a <code>GlobalUsings.cs</code> in your project. Aliases are not transitive across assemblies, so they live in <em>your</em> code (copy from the <a href="https://github.com/Smoower/dotnet-minified/blob/main/samples/Smoower.Minified.SampleApi/GlobalUsings.cs"><code>samples/Smoower.Minified.SampleApi/GlobalUsings.cs</code></a>):</p>
   <pre>global using Smoower.Minified.Core;
 global using Smoower.Minified.AspNetCore;
 global using Smoower.Minified.EFCore;
@@ -62,7 +62,7 @@ global using Cfg = Microsoft.Extensions.Configuration.IConfiguration;
 global using Tr  = System.Threading.Tasks.Task&lt;Microsoft.AspNetCore.Mvc.IActionResult&gt;;</pre>
 
   <h2>3 &mdash; Point your assistant at the style</h2>
-  <p class="lead"><strong>Claude Code</strong> uses the bundled skill at <code>.claude/skills/dotnet/</code> &mdash; just ask it to use Smoower.Minified. <strong>GPT / Copilot / Cursor</strong> take <code>prompts/system-prompt.md</code> as a system prompt or rules file. A short version to drop into any chat:</p>
+  <p class="lead"><strong>Claude Code</strong> uses the bundled skill at <a href="https://github.com/Smoower/dotnet-minified/tree/main/.claude/skills/dotnet"><code>.claude/skills/dotnet/</code></a> &mdash; just ask it to use Smoower.Minified. <strong>GPT / Copilot / Cursor</strong> take <a href="https://github.com/Smoower/dotnet-minified/blob/main/prompts/system-prompt.md"><code>prompts/system-prompt.md</code></a> as a system prompt or rules file. A short version to drop into any chat:</p>
   <pre>Generate ASP.NET Core / EF Core code using the Smoower.Minified compact
 helpers ([API]/[HG]/[HPO], :Ctl, Tr, .w/.s/.nt/.lst/.one,
 db.save/db.add, ok1/okl/okId/delById, nil()). Code only, no comments,

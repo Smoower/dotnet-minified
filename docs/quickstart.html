@@ -37,8 +37,8 @@
   <p class="lead">The fastest path: add the packages, drop in the aliases, and point your assistant at the style. If your assistant has tool access, it can do all of this for you.</p>
 
   <h2>Let your AI set it up</h2>
-  <p class="lead">Paste <code>prompts/setup-prompt.md</code> into your assistant in a new or existing repo. It detects the project (or scaffolds a Web API in an empty one), installs the packages it needs, writes <code>GlobalUsings.cs</code>, adds the compact-style rules to your <code>CLAUDE.md</code> / <code>copilot-instructions.md</code>, and builds to verify. It is safe to re-run; it only adds what is missing.</p>
-  <div class="callout info"><strong>Claude Code</strong> users can skip the paste &mdash; the repo ships a skill at <code>.claude/skills/dotnet/</code>; just ask it to &ldquo;set up Smoower.Minified in this project.&rdquo;</div>
+  <p class="lead">Paste <a href="https://github.com/Smoower/dotnet-minified/blob/main/prompts/setup-prompt.md"><code>prompts/setup-prompt.md</code></a> into your assistant in a new or existing repo. It detects the project (or scaffolds a Web API in an empty one), installs the packages it needs, writes <code>GlobalUsings.cs</code>, adds the compact-style rules to your <code>CLAUDE.md</code> / <code>copilot-instructions.md</code>, and builds to verify. It is safe to re-run; it only adds what is missing.</p>
+  <div class="callout info"><strong>Claude Code</strong> users can skip the paste &mdash; the repo ships a skill at <a href="https://github.com/Smoower/dotnet-minified/tree/main/.claude/skills/dotnet"><code>.claude/skills/dotnet/</code></a>; just ask it to &ldquo;set up Smoower.Minified in this project.&rdquo;</div>
 
   <h2>Or install the Claude Code plugin</h2>
   <p class="lead">Smoower.Minified ships as a Claude Code plugin on Anthropic&rsquo;s community marketplace. Add it once and the skill applies the compact style automatically &mdash; it even asks which <a href="compaction-levels.html">compaction level</a> to use before it generates:</p>
@@ -52,11 +52,11 @@ dotnet add package Smoower.Minified.AspNetCore
 dotnet add package Smoower.Minified.EFCore
 
 # 2 — drop the usings + aliases into a GlobalUsings.cs
-#     (copy from samples/Smoower.Minified.SampleApi/GlobalUsings.cs)
+#     (copy from <a href="https://github.com/Smoower/dotnet-minified/blob/main/samples/Smoower.Minified.SampleApi/GlobalUsings.cs">samples/Smoower.Minified.SampleApi/GlobalUsings.cs</a>)
 
 # 3 — point your AI at the style
 #     Claude Code -> just ask it to "use Smoower.Minified"  (ships as a skill)
-#     Copilot / Cursor / GPT -> paste prompts/system-prompt.md</pre>
+#     Copilot / Cursor / GPT -> paste <a href="https://github.com/Smoower/dotnet-minified/blob/main/prompts/system-prompt.md">prompts/system-prompt.md</a></pre>
   <p class="lead">That&rsquo;s it &mdash; your next controller comes out compact. For the full package list and the aliases to copy, see <a href="installation.html">Installation</a>.</p>
 
   <h2>What compact looks like</h2>
