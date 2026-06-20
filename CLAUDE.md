@@ -18,20 +18,54 @@ global using Smoower.Minified.AspNetCore;
 global using Smoower.Minified.EFCore;
 global using Smoower.Minified.Hosting;
 global using Smoower.Minified.Logging;
-global using Ctl = Microsoft.AspNetCore.Mvc.ControllerBase;
 global using Res = Microsoft.AspNetCore.Mvc.IActionResult;
 global using AR  = Microsoft.AspNetCore.Mvc.ActionResult;
 global using CT  = System.Threading.CancellationToken;
 global using Cfg = Microsoft.Extensions.Configuration.IConfiguration;
 global using Tr  = System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult>;
+global using KNF = System.Collections.Generic.KeyNotFoundException;
+global using IOE = System.InvalidOperationException;
+global using UAE = System.UnauthorizedAccessException;
+global using AE  = System.ArgumentException;
+global using JPN = System.Text.Json.Serialization.JsonPropertyNameAttribute;
+global using JI   = System.Text.Json.Serialization.JsonIgnoreAttribute;
+global using JC   = System.Text.Json.Serialization.JsonConverterAttribute;
+global using JSEM = System.Text.Json.Serialization.JsonStringEnumMemberNameAttribute;
+global using JPO  = System.Text.Json.Serialization.JsonPropertyOrderAttribute;
+global using Tbl    = System.ComponentModel.DataAnnotations.Schema.TableAttribute;
+global using NM     = System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute;
+global using Req    = System.ComponentModel.DataAnnotations.RequiredAttribute;
+global using MaxLen = System.ComponentModel.DataAnnotations.MaxLengthAttribute;
+global using StrLen = System.ComponentModel.DataAnnotations.StringLengthAttribute;
+global using Rng    = System.ComponentModel.DataAnnotations.RangeAttribute;
 ```
+
+`[JPN("wireName")]` pins the JSON name (it's a `using` alias because
+`JsonPropertyNameAttribute` is sealed). `[Col("ColumnName")]` (shipped in
+`Smoower.Minified.EFCore`) pins the DB column. Both let a short C# identifier
+carry a long wire/DB contract: the long name is paid **once** at the declaration,
+the short name everywhere it's referenced — a net win for any identifier used
+more than a couple of times. Reserve `global using` type-aliases for hot
+entity/DTO types; **never `global using` an enum type** (it obscures switches and
+`nameof` — bad code). Enum *values* may be shortened via `[JsonStringEnumMemberName]`
+/ `[EnumMember]`, but since the enum type name can't be aliased it dominates the
+reference, so value-only shortening rarely pays — skip it unless measured.
+
+The exception aliases (`KNF`/`IOE`/`UAE`/`AE`) shorten the long framework
+exception names in `catch`/`throw`. They change names only — keep every
+`try`/`catch` whose handler does real work; only the names get shorter.
 
 ## Use the compact syntax
 
 - Attributes: `[API]`, `[RT(...)]`, `[HG]`, `[HPO]`, `[HPU]`, `[HPA]`, `[HD]`,
   `[AUTH]`, `[ANON]`, `[FB]`, `[FR]`, `[FQ]`, `[FH]`.
-- Types: `Ctl` (base), `Tr` (async action return), `Res`/`AR` where they fit;
-  use `ActionResult<T>` / `ILogger<T>` for generics (no open-generic aliases).
+- Types: `Ctl` (the smoower controller base class, from `Smoower.Minified.AspNetCore`
+  — inherit it, not `ControllerBase`), `Tr` (async action return), `Res`/`AR` where
+  they fit; use `ActionResult<T>` / `ILogger<T>` for generics (no open-generic aliases).
+- Controller result helpers (on `Ctl`, for the hand-written guard/catch returns the
+  terminators don't cover): `nf()` (404), `nc()` (204), `un()` (401), `forb()` (403),
+  `bad()`/`bad(err)` (400), `unp(msg)` (422 `{error:msg}`). Prefer the result-fusing
+  terminators below for the data path; use these for guards.
 - EF query: `w`, `s`, `ob`, `obd`, `tb`, `tbd`, `sk`, `tk`, `nt`, `inc`, `lst`,
   `one`, `single`, `any`, `cnt`.
 - EF write: `db.save()`, `db.Set.id(key)`, `db.add`/`db.upd`/`db.del`. Sync code

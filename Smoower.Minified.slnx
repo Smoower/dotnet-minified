@@ -14,6 +14,7 @@
     <Project Path="src/Smoower.Minified.Extensions/Smoower.Minified.Extensions.csproj" />
     <Project Path="src/Smoower.Minified.Hosting/Smoower.Minified.Hosting.csproj" />
     <Project Path="src/Smoower.Minified.Http/Smoower.Minified.Http.csproj" />
+    <Project Path="src/Smoower.Minified.Identity/Smoower.Minified.Identity.csproj" />
     <Project Path="src/Smoower.Minified.Json.Newtonsoft/Smoower.Minified.Json.Newtonsoft.csproj" />
     <Project Path="src/Smoower.Minified.Json/Smoower.Minified.Json.csproj" />
     <Project Path="src/Smoower.Minified.Logging/Smoower.Minified.Logging.csproj" />

@@ -1,0 +1,1 @@
+using FluentValidation;namespace Smoower.Minified.SampleApi;public class UserInValidator:MiniValidator<UserIn>{public UserInValidator(){req(x=>x.Name).max(100);req(x=>x.Email).email();}}

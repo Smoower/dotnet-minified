@@ -9,6 +9,28 @@ Write the most compact valid C# using the `Smoower.Minified.*` helpers. The poin
 is fewer output tokens: lower API cost and faster generation. Output **code only**
 unless asked to explain.
 
+## Setup — ask the level first
+
+Before generating, **ask the user which compaction level to apply** (skip only if
+they already said, or CLAUDE.md / the repo pins one). Ask interactively, then apply
+that level for the rest of the session:
+
+1. **L1 — Aliases** (default): smoower short handles + `[Crud<>]`. Valid, readable
+   C# as-is. Cuts framework ceremony (~18–35% on a controller). No renaming.
+2. **L2 — Mapped**: L1 **plus** short-named domain vocabulary — shorten
+   *high-frequency, multi-token* identifiers and pin the long name where it crosses
+   a boundary: `[JPN("wire")]` for JSON, `[Col("Column")]` for DB, a `global using`
+   for hot **types** (never enum types). Emit a `names.map` (CSV: `short,long,kind`)
+   for internal names that have no attribute carrier. Reaches the business-logic
+   floor; pays off as the codebase grows.
+3. **L3 — Max**: L2 **plus** whitespace packed — every newline + indentation
+   removed. The fully compressed form; readability comes from tooling only.
+
+Also ask **comments: keep or strip** (L1 strips filler by default; L2/L3 strip all).
+Only shorten an identifier whose short form actually saves Claude tokens — single
+words like `Id`/`Title`/`Status` are already ~1 token; target compound names
+(`RecurrenceDays`, `OrganizationId`, `CreatedAt`).
+
 ## Hard rules
 
 - File-scoped namespaces, primary constructors, records for DTOs. Nullable on.
@@ -21,12 +43,17 @@ global using Smoower.Minified.AspNetCore;
 global using Smoower.Minified.EFCore;
 global using Smoower.Minified.Hosting;
 global using Smoower.Minified.Logging;
-global using Ctl = Microsoft.AspNetCore.Mvc.ControllerBase;
 global using Res = Microsoft.AspNetCore.Mvc.IActionResult;
 global using Tr  = System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult>;
 global using CT  = System.Threading.CancellationToken;
 global using Cfg = Microsoft.Extensions.Configuration.IConfiguration;
 ```
+
+`Ctl` is a base **class** from `Smoower.Minified.AspNetCore` (inherit it, not
+`ControllerBase`). CLAUDE.md carries the full alias set to declare once per project:
+exception aliases (`KNF`/`IOE`/`UAE`/`AE`), attribute aliases (`JPN`/`JI`/`JC`/`JSEM`/
+`JPO`/`Tbl`/`NM`/`Req`/`MaxLen`/`StrLen`/`Rng`), and the controller result helpers on
+`Ctl` (`nf`/`nc`/`un`/`forb`/`bad`/`unp`). For auth add `Smoower.Minified.Identity`.
 
 ## Use these instead of the long forms
 
@@ -50,6 +77,8 @@ global using Cfg = Microsoft.Extensions.Configuration.IConfiguration;
 | `c.getJson<T>(url)` `c.postJson(url,b)` | `GetFromJsonAsync` `PostAsJsonAsync` |
 | `db.get(k)` `db.set(k,v)` `db.getJson<T>(k)` | StackExchange.Redis `StringGetAsync` ... |
 | `c.q<T>(sql,p)` `c.q1<T>(...)` `c.ex(sql,p)` `c.scalar<T>(...)` | Dapper `QueryAsync`/`QueryFirstOrDefaultAsync`/`ExecuteAsync` ... |
+| `[JPN("n")]` `[JI]` `[JC(...)]` `[JSEM("n")]` `[Col("n")]` `[Tbl("n")]` `[Req]` `[MaxLen(n)]` `[NM]` | `[JsonPropertyName]` `[JsonIgnore]` `[Column]` `[Table]` `[Required]` `[MaxLength]` `[NotMapped]` ... |
+| `um.create(u,pw)` `um.byEmail(e)` `um.checkPw(u,pw)` `um.roles(u)` `sm.pwSignIn(...)` | Identity `CreateAsync`/`FindByEmailAsync`/`CheckPasswordAsync`/`PasswordSignInAsync` ... |
 
 Prefer the result-fusing terminators (`ok1`/`okl`/`okId`/`okAdd`/`delById`) so an
 action is a single expression with no `async`/`await`/`return`/`Ok`/`NotFound`.
@@ -61,8 +90,13 @@ that must be synchronous.
 
 ## Never compact the contract
 
-Route templates, HTTP verbs, status codes, and DTO property/JSON names must stay
-exactly as the API requires. Shorten the code, not the public contract.
+Route templates, HTTP verbs, status codes, and the **wire/DB values** (JSON
+property names, column names) must stay exactly as the API/schema requires.
+At **L1** keep the C# names too. At **L2/L3** you may shorten the C# identifier,
+but only if you pin the unchanged wire/DB value in an attribute (`[JPN("realName")]`,
+`[Col("RealColumn")]`) — the promise to clients and the database never changes,
+only the in-code handle does. Never short-name an enum *type* via `global using`,
+and never change a serialized enum *value* without `[JSEM("realValue")]`.
 
 ## Target shape
 

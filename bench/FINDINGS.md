@@ -85,3 +85,74 @@ escape-hatch body, addressed by: (a) ship the real vocabulary in the skill,
 **Harness limitation:** substring checks can't see structure or semantics (missed
 the `soft_delete` structural break and the dropped `await`). The real eval needs
 the actual generator so outputs compile-check.
+
+## 4. The full ladder on a real app (`samples/TodoApi`)
+
+A task-management API in **conventional C#** with real business logic (status
+state-machine, WIP limits, completion gating, recurrence, dashboard aggregation —
+*not* pure CRUD), measured against its smoower + packed `.min` mirrors on Claude:
+
+| form | Claude tok | vs vanilla |
+|---|--:|--:|
+| traditional C# | 5049 | — |
+| smoower (aliases) | 4121 | ~18% |
+| packed `.min` | 3785 | ~25% |
+
+- The alias lever is a **ceremony detector**: ~30% on the controller, ~15% on the
+  logic-heavy service, **0% on entities/DTOs** (pure contract — nothing to alias).
+- Whitespace packing (§5) adds the rest and is the **only** lever that touches the
+  contract/data files (16–19% there).
+- **~25% end-to-end on a realistic app** — confirms the "10–25% project-wide" band
+  with a measurement, not an extrapolation. The ~80% of a pure-CRUD controller is
+  the exception; business logic and the contract are the floor.
+
+## 5. Whitespace packing — the `.min` lever
+
+Stripping every newline + indentation (lexically safe; a formatter reverses it):
+
+- **~5%** on already-dense smoower controllers (near the whitespace floor already).
+- **15–37%** on conventional, multi-line, commented code (data models, bootstrap,
+  the `global using` block). Whole authored SampleApi: **16.8%**.
+- ~0.75 Claude tokens per whitespace char — code newlines/indentation are
+  token-dense (leading whitespace at line starts tokenizes as its own token).
+
+An **input/storage** lever, not an output lever: the model reads packed code fine
+(free), but *generating* packed single-line code likely raises the error rate
+(untested) — keep it to packing existing code / cached rules, recover readability
+with the VS Code virtual view. Unlike §2's cryptic *characters* (which gave nothing
+on Claude), whitespace removal *does* pay; its readability cost is recovered by
+deterministic tooling, not by the model reading it.
+
+## 6. Short-naming the domain vocabulary (attribute-decoupled)
+
+The contract floor (§2, §4) is frozen because it's a **cross-boundary promise**
+(JSON / DB columns / routes, read by systems that don't have your unpack tool) —
+not because it's read. But you can move the boundary name into an attribute (paid
+once) and let the C# identifier be a short handle used everywhere: `[JPN("wire")]`
+(JSON), `[Col("Column")]` (DB), `global using TT = TodoTask` (type).
+
+Per-use deltas on Claude (`bench`):
+
+- Hot, multi-token wins: `RecurrenceDays` 8→2, `OrganizationId`/`CreatedAt` 6→2,
+  `CustomerId` 5→2, `TodoTask` 5→2.
+- **No headroom / traps:** `Id`/`Title`/`Status` are already ~2 tok; `Description`→
+  `Desc` is **negative**. Measure the delta — "long word" ≠ "many tokens".
+- The `C_`/`P_` prefix scheme is the worst choice: the underscore fragments
+  (`TaskService`→`C_TSvc` is **+2**). Use bare names; `global using` gives
+  collision-safety without a prefix.
+
+Economics = **frequency × delta − fixed one-time cost** (the attribute/alias decl).
+On a toy (each id used ~2–5×) it is ~breakeven (net 32 tok). Holding the same
+identifiers but scaling uses to codebase size: **~3,000 net at 10×, ~9,700 at 30×**
+— the one-time cost amortizes to noise. The only lever that keeps paying on the
+business-logic / contract floor as a codebase grows.
+
+**Rules (the boundaries that held):**
+- Target **hot + positive-delta** identifiers only.
+- Boundary names live in compilable carriers (`[Col]`/`[JPN]`/`global using`) —
+  those *are* the map; a `.map` sidecar is only for internal names with no carrier.
+- **Never `global using` an enum type** (obscures switches/`nameof` — bad code).
+  Enum *values* can be shortened via `[JsonStringEnumMemberName]`/`[EnumMember]`,
+  but the un-aliasable type name dominates the reference, so value-only shortening
+  barely pays — low priority.
+- Consistency needs the name-map in context → **cache it** (prompt-caching lever).

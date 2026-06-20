@@ -1,0 +1,31 @@
+# smoower name map for TodoApi — the unpacker / VS Code extension reads this to
+# render long forms. Format: short,long,kind[,owner]
+#
+# Boundary names (types, columns) are ALSO pinned in compilable code (global using
+# for types, [Col]/[JPN] for members), so those rows are recoverable from the code
+# itself; this file is the consolidated index plus the internal-only names that have
+# no compilable carrier. Enum TYPES are absent on purpose — never global-using'd
+# (bad code: obscures switch/nameof). Enum values could be shortened via
+# [JsonStringEnumMemberName], but the full type name dominates so it rarely pays.
+
+# --- hot types (global using aliases; entity/DTO/service only) ---
+TT,TodoTask,type
+TL,TodoList,type
+TD,TaskDto,type
+LS,ListSummary,type
+CTR,CreateTaskRequest,type
+TDb,TodoDb,type
+TSvc,TaskService,type
+
+# --- entity properties (pinned with [Col]; DB schema unchanged) ---
+LId,ListId,prop,TodoTask
+DA,DueAt,prop,TodoTask
+AID,AssigneeId,prop,TodoTask
+CmA,CompletedAt,prop,TodoTask
+RD,RecurrenceDays,prop,TodoTask
+PTI,ParentTaskId,prop,TodoTask
+CA,CreatedAt,prop,TodoTask;TodoList
+
+# --- internal names (no attribute carrier; this file is their only record) ---
+GW,GuardWipAsync,method,TaskService
+NO,NextOccurrence,method,TaskService

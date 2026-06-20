@@ -3,7 +3,16 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Generated/**/*.cs" />
+    <!-- Packed mirrors of the authored .cs (the AI-authored form). Deterministically
+         expandable back to the .cs; never compiled - the .cs is the build input. -->
+    <Compile Remove="**/*.min.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Smoower.Minified.Core\Smoower.Minified.Core.csproj" />
@@ -13,6 +22,7 @@
     <ProjectReference Include="..\..\src\Smoower.Minified.Hosting\Smoower.Minified.Hosting.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Logging\Smoower.Minified.Logging.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Validation\Smoower.Minified.Validation.csproj" />
+    <ProjectReference Include="..\..\src\Smoower.Minified.Generators\Smoower.Minified.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

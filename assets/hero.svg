@@ -1,0 +1,58 @@
+<svg width="920" height="400" viewBox="0 0 920 400" fill="none" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace">
+  <defs>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#58a6ff"/>
+      <stop offset="1" stop-color="#a371f7"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0.5" y="0.5" width="919" height="399" rx="16" fill="#0d1117" stroke="#30363d"/>
+
+  <!-- header -->
+  <text x="32" y="48" font-size="20" font-weight="700" fill="#e6edf3">·minified</text>
+  <text x="135" y="48" font-size="20" font-weight="700" fill="url(#accent)">/ dotnet</text>
+  <text x="888" y="48" font-size="13" fill="#9da7b3" text-anchor="end">same IL · no source generator · fewer tokens</text>
+  <line x1="32" y1="64" x2="888" y2="64" stroke="#21262d"/>
+
+  <!-- BEFORE panel -->
+  <rect x="32" y="88" width="372" height="276" rx="10" fill="#161b22" stroke="#30363d"/>
+  <circle cx="52" cy="110" r="5" fill="#30363d"/>
+  <circle cx="70" cy="110" r="5" fill="#30363d"/>
+  <circle cx="88" cy="110" r="5" fill="#30363d"/>
+  <text x="388" y="115" font-size="12" fill="#6e7681" text-anchor="end">hand-written</text>
+  <g font-size="14.5" fill="#6e7681">
+    <text x="52" y="156">[HttpGet("{id}")]</text>
+    <text x="52" y="182">public async Task&lt;IActionResult&gt;</text>
+    <text x="52" y="208">  Get(int id) =&gt;</text>
+    <text x="52" y="234">    await db.Users.AsNoTracking()</text>
+    <text x="52" y="260">      .Where(x =&gt; x.Id == id)</text>
+    <text x="52" y="286">      .Select(x =&gt; new {x.Id})</text>
+    <text x="52" y="312">      .FirstOrDefaultAsync() is</text>
+    <text x="52" y="338">        {} x ? Ok(x) : NotFound();</text>
+  </g>
+  <rect x="282" y="98" width="104" height="22" rx="11" fill="#21262d"/>
+  <text x="334" y="113" font-size="12" fill="#8b949e" text-anchor="middle">≈ 86 tokens</text>
+
+  <!-- arrow + delta -->
+  <g transform="translate(424, 226)">
+    <path d="M0 0 H56" stroke="url(#accent)" stroke-width="2.5"/>
+    <path d="M48 -7 L58 0 L48 7" stroke="url(#accent)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="-2" y="-46" width="62" height="26" rx="13" fill="#2ea04326" stroke="#3fb95055"/>
+    <text x="29" y="-28" font-size="15" font-weight="700" fill="#3fb950" text-anchor="middle">−38%</text>
+  </g>
+
+  <!-- AFTER panel -->
+  <rect x="516" y="88" width="372" height="276" rx="10" fill="#161b22" stroke="#3fb95055"/>
+  <circle cx="536" cy="110" r="5" fill="#3fb95066"/>
+  <circle cx="554" cy="110" r="5" fill="#3fb95066"/>
+  <circle cx="572" cy="110" r="5" fill="#3fb95066"/>
+  <text x="872" y="115" font-size="12" fill="#3fb950" text-anchor="end">Smoower.Minified</text>
+  <g font-size="15" fill="#c9d1d9">
+    <text x="536" y="208">[<tspan fill="#3fb950">HG</tspan>("{id}")]<tspan fill="#58a6ff">public</tspan> <tspan fill="#3fb950">Tr</tspan> Get(<tspan fill="#ff7b72">int</tspan> id)=&gt;</text>
+    <text x="536" y="240">  db.Users.<tspan fill="#3fb950">nt</tspan>().<tspan fill="#3fb950">w</tspan>(x=&gt;x.Id==id)</text>
+    <text x="536" y="272">   .<tspan fill="#3fb950">s</tspan>(x=&gt;new{x.Id}).<tspan fill="#3fb950">ok1</tspan>();</text>
+  </g>
+  <text x="536" y="318" font-size="12.5" fill="#6e7681">// one line, same 200/404 behavior</text>
+  <rect x="766" y="98" width="104" height="22" rx="11" fill="#2ea04326"/>
+  <text x="818" y="113" font-size="12" fill="#3fb950" text-anchor="middle">≈ 53 tokens</text>
+</svg>

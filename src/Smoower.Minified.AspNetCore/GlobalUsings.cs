@@ -5,7 +5,6 @@
 // be aliased. Use ILogger<T> / ActionResult<T> directly. The CLOSED generic
 // Task<IActionResult> CAN be aliased, which is what `Tr` exploits.
 
-global using Ctl = Microsoft.AspNetCore.Mvc.ControllerBase;
 global using Res = Microsoft.AspNetCore.Mvc.IActionResult;
 global using AR = Microsoft.AspNetCore.Mvc.ActionResult;
 global using Tr = System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult>;

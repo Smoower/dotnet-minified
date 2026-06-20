@@ -11,6 +11,12 @@ public static class QueryExtensions
     public static IQueryable<T> w<T>(this IQueryable<T> q, Expression<Func<T, bool>> predicate)
         => q.Where(predicate);
 
+    // Conditional Where: apply the predicate only when condition is true. Collapses
+    // the `if (filter.HasValue) q = q.Where(...)` chains that dominate filtered list
+    // endpoints into a single fluent expression.
+    public static IQueryable<T> whereIf<T>(this IQueryable<T> q, bool condition, Expression<Func<T, bool>> predicate)
+        => condition ? q.Where(predicate) : q;
+
     public static IQueryable<TResult> s<T, TResult>(this IQueryable<T> q, Expression<Func<T, TResult>> selector)
         => q.Select(selector);
 

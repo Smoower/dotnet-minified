@@ -1,19 +1,65 @@
-# Smoower.Minified
+<div align="center"><pre>
+███╗   ███╗██╗███╗   ██╗██╗███████╗██╗███████╗██████╗ 
+████╗ ████║██║████╗  ██║██║██╔════╝██║██╔════╝██╔══██╗
+██╔████╔██║██║██╔██╗ ██║██║█████╗  ██║█████╗  ██║  ██║
+██║╚██╔╝██║██║██║╚██╗██║██║██╔══╝  ██║██╔══╝  ██║  ██║
+██║ ╚═╝ ██║██║██║ ╚████║██║██║     ██║███████╗██████╔╝
+╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝╚═╝     ╚═╝╚══════╝╚═════╝ 
+              same .NET code · fewer tokens · no magic
+</pre></div>
 
-[![CI](https://github.com/smoower/dotnet-minified/actions/workflows/ci.yml/badge.svg)](https://github.com/smoower/dotnet-minified/actions/workflows/ci.yml)
-[![NuGet](https://img.shields.io/nuget/v/Smoower.Minified.AspNetCore.svg?logo=nuget&label=NuGet)](https://www.nuget.org/packages/Smoower.Minified.AspNetCore)
-[![.NET](https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com)
-[![License: Source-Available](https://img.shields.io/badge/License-Source--Available-red.svg)](LICENSE)
+<p align="center"><strong>Your AI pays by the token. ASP.NET Core makes it pay a lot — Smoower.Minified makes it pay less.</strong></p>
 
-**Your AI pays by the token. ASP.NET Core makes it pay a lot.**
+<p align="center">part of the <code>·minified</code> family — <strong>dotnet</strong> today · react · vue · tooling next</p>
+
+<p align="center">
+  <a href="https://github.com/smoower/dotnet-minified/actions/workflows/ci.yml"><img src="https://github.com/smoower/dotnet-minified/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.nuget.org/packages/Smoower.Minified.AspNetCore"><img src="https://img.shields.io/nuget/v/Smoower.Minified.AspNetCore.svg?logo=nuget&label=NuGet" alt="NuGet"></a>
+  <a href="https://dotnet.microsoft.com"><img src="https://img.shields.io/badge/.NET-8.0%20%7C%209.0%20%7C%2010.0-512BD4?logo=dotnet" alt=".NET"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Source--Available-red.svg" alt="License: Source-Available"></a>
+</p>
+
+<p align="center">
+  <a href="https://smoower.github.io/dotnet-minified/">Docs</a> ·
+  <a href="#get-started-in-seconds">Get started</a> ·
+  <a href="#the-cheat-sheet">Cheat sheet</a> ·
+  <a href="#the-packages">Packages</a> ·
+  <a href="https://smoower.github.io/dotnet-minified/economics.html">Does it pay off?</a> ·
+  <a href="#the-minified-family">The family</a>
+</p>
+
+<div align="center">
+  <img src="assets/hero.svg" alt="The same controller action, hand-written vs Smoower.Minified — roughly 38% fewer output tokens, same 200/404 behavior" width="840">
+</div>
+
+---
 
 Smoower.Minified is a set of tiny C# libraries that shrink the boilerplate-heavy
 parts of a .NET API (controllers, EF Core queries, DI, logging) into short,
-stable forms that are still 100% ordinary C#. No source generator, no transpiler,
-no magic. Same IL, fewer tokens.
+stable forms. The alias layer (L1) is 100% ordinary C# — no transpiler, no magic,
+same IL, fewer tokens. An opt-in `[Crud<>]` source generator and the deeper L2/L3
+levels go further when you want them, always keeping the public contract intact.
 
 📖 **Full per-library before/after reference (with per-mapping token deltas):
 <https://smoower.github.io/dotnet-minified/>**
+
+## Get started in seconds
+
+```bash
+# 1 — add the packages (ASP.NET Core backend set)
+dotnet add package Smoower.Minified.AspNetCore
+dotnet add package Smoower.Minified.EFCore
+
+# 2 — drop the usings + aliases into a GlobalUsings.cs
+#     (copy from samples/Smoower.Minified.SampleApi/GlobalUsings.cs)
+
+# 3 — point your AI at the style
+#     Claude Code → just ask it to "use Smoower.Minified"  (ships as a skill)
+#     Copilot / Cursor / GPT → paste prompts/system-prompt.md
+```
+
+That's it — your next controller comes out compact. Full walkthrough (let your
+AI wire it, or do it by hand) in **[Getting started](#getting-started)** below.
 
 ---
 
@@ -40,6 +86,26 @@ runtime behavior. The full arithmetic is on
 [Does it pay off?](https://smoower.github.io/dotnet-minified/economics.html).
 
 ---
+
+## Compaction levels
+
+Smoower.Minified is a dial, not a switch. The Claude Code skill **asks you which
+level** before it generates — pick by how much you value readable-on-disk vs raw
+token count (a planned VS Code virtual view + `names.map` restore readability at
+the deeper levels).
+
+| Level | What it adds | Reaches | Readable on disk? |
+| --- | --- | --- | --- |
+| **L1 — Aliases** | smoower short handles + optional `[Crud<>]` generator | framework ceremony (~18–35% on a controller) | yes |
+| **L2 — Mapped** | short domain names, long form pinned in `[JPN]`/`[Col]`/`global using` + a `names.map` | the business-logic / contract floor; compounds with codebase size | with tooling/comments |
+| **L3 — Max** | whitespace packed — every newline + indentation removed | everything | tooling only |
+
+On a real task-management API ([`samples/TodoApi`](samples/TodoApi)) the ladder
+measured traditional → smoower → packed at **5049 → 4121 (~18%) → 3785 (~25%)**
+Claude tokens; short-naming the hot domain vocabulary (L2) keeps paying as the
+codebase grows ([`bench/FINDINGS.md`](bench/FINDINGS.md) §4–6). At every level the
+contract — routes, status codes, JSON/DB *values* — is unchanged; only the in-code
+handle moves.
 
 ## The bill nobody talks about
 
@@ -150,7 +216,7 @@ verify. It's safe to re-run; it only adds what's missing.
 
 ### Option B — install by hand
 
-1. Add the packages you need (all `0.1.0`, multi-targeting net8.0 / net9.0 /
+1. Add the packages you need (all `0.3.0`, multi-targeting net8.0 / net9.0 /
    net10.0). The default set for an ASP.NET Core backend:
 
    ```bash
@@ -166,8 +232,8 @@ verify. It's safe to re-run; it only adds what's missing.
    [The packages](#the-packages)):
 
    ```xml
-   <PackageReference Include="Smoower.Minified.AspNetCore" Version="0.1.0" />
-   <PackageReference Include="Smoower.Minified.EFCore" Version="0.1.0" />
+   <PackageReference Include="Smoower.Minified.AspNetCore" Version="0.3.0" />
+   <PackageReference Include="Smoower.Minified.EFCore" Version="0.3.0" />
    ```
 
 2. Drop the imports and aliases into a `GlobalUsings.cs`. Aliases aren't
@@ -229,6 +295,11 @@ take `EFCore` without dragging in ASP.NET Core.
 | `Smoower.Minified.Redis` | StackExchange.Redis helpers |
 | `Smoower.Minified.Logging` | `ILogger` helpers |
 | `Smoower.Minified.Hosting` | DI registration helpers |
+| `Smoower.Minified.Validation` | `MiniValidator<T>` + `req`/`rule`/`max`/`email`/`gt` over FluentValidation |
+| `Smoower.Minified.Json` | `toJson`/`fromJson<T>` (System.Text.Json; Newtonsoft variant available) |
+| `Smoower.Minified.Dapper` | `q`/`q1`/`ex`/`scalar` over `IDbConnection` |
+| `Smoower.Minified.Identity` | short `UserManager`/`SignInManager`/`RoleManager` ops (`create`/`byEmail`/`checkPw`/`pwSignIn`) |
+| `Smoower.Minified.Generators` | opt-in `[Crud<>]` source generator — expands a partial controller into full CRUD *(preview: in-repo, not yet on NuGet)* |
 
 ## The one rule: don't compact the contract
 
@@ -237,22 +308,41 @@ route templates, HTTP verbs, status codes, and DTO property/JSON names exactly a
 your API requires. Shortening those silently breaks clients. Shorten the code,
 not the contract.
 
+## The minified family
+
+`dotnet-minified` is the first of a family. The premise generalizes: anywhere an
+AI assistant pays by the token to re-emit framework ceremony, a stable compact
+dialect that keeps the contract pays for itself.
+
+- **`dotnet-minified`** — ASP.NET Core / EF Core. Shipping today. *(this repo)*
+- **`react-minified`, `vue-minified`, …** — the same idea for the front-end
+  ceremony AI rewrites most. On the roadmap.
+- **Tooling** — a CLI and editor integrations (VS Code) to apply, lint, and
+  round-trip the compact style. Planned as a product layer on top of the
+  open libraries.
+
+The libraries stay source-available and free; everything ships under the
+**Smoower** brand for now. Want a runtime covered, or building one? Open an issue.
+
 ## What's next
 
-The same hotspot analysis (`python bench/hotspots.py`) points at the next big
-token sinks worth packaging:
+Recently shipped: the `[Crud<>]` source generator, `whereIf`/`paged` query
+terminators, exception aliases (`KNF`/`IOE`), the `Ctl` result helpers
+(`nf`/`un`/`unp`), the `[JPN]`/`[Col]`/`[JSEM]` attribute aliases for L2 short-naming,
+and the `Smoower.Minified.Identity` package. The earlier list — `created()`,
+`[P200]`, `cfg.bind<T>()`, JSON shorteners — all landed.
 
-- **201/Created results.** `CreatedAtAction(nameof(Get), new { id = x.Id }, x)`
-  is heavy; a fused `created(x)` cuts it by roughly 70%.
-- **`[ProducesResponseType(...)]`.** Short attribute forms (`[P200]`, `[P404]`)
-  save around 70% each, and they stack up on documented APIs.
-- **Config binding.** `Configuration.GetSection("X").Get<T>()` becomes `cfg.bind<T>("X")`.
-- **JSON.** `JsonSerializer.Serialize/Deserialize` shorteners.
+On the roadmap, in rough order:
 
-What's *not* worth it: minimal-hosting boilerplate (`WebApplication.CreateBuilder`,
-`AddControllers`, `MapControllers`) measures at roughly 0 token savings, because
-those are already cheap, common tokens. Shorteners that don't earn their keep
-won't ship.
+- **Pack / expand tooling.** A CLI + VS Code virtual view to round-trip L2/L3:
+  author packed, read expanded, with the `names.map` and the `[Crud<>]` generator
+  as the deterministic expanders. This is what makes L3 practical day-to-day.
+- **More of the framework.** ASP.NET Identity is in; next are the surfaces a real
+  app still writes long — and beyond ASP.NET, other .NET flavors (Blazor, WPF/XAML).
+- **The measured discipline holds:** a shortener ships only if it saves Claude
+  tokens *and* the model reaches for it. Minimal-hosting boilerplate (~0 savings)
+  and cryptic/numeric encodings (no gain on Claude — see `bench/FINDINGS.md` §2)
+  stay rejected.
 
 ## Docs site
 

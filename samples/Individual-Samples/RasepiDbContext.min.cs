@@ -1296,7 +1296,7 @@ public class SampleDbContext : DbContext
                 }
                 else if (entry.Entity.TenantId != _tenantContext.TenantId)
                 {
-                    throw new InvalidOperationException(
+                    throw new IOE(
                         $"Cross-tenant write blocked. " +
                         $"Entity TenantId={entry.Entity.TenantId} does not match " +
                         $"current TenantContext.TenantId={_tenantContext.TenantId}. " +

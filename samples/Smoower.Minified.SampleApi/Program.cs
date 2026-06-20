@@ -4,7 +4,9 @@ using Smoower.Minified.Hosting;
 using Smoower.Minified.SampleApi;
 
 var b = WebApplication.CreateBuilder(args);
-b.Services.ctrl().mem<AppDb>("sample").single<Clock>().scoped<IValidator<UserIn>, UserInValidator>();
+b.Services.ctrl().mem<AppDb>("sample").single<Clock>()
+    .scoped<IValidator<UserIn>, UserInValidator>()
+    .scoped<IValidator<ProductIn>, ProductInValidator>();
 
 var app = b.Build();
 
@@ -14,6 +16,9 @@ using (var scope = app.Services.CreateScope())
     db.Users.AddRange(
         new User { Name = "Ada Lovelace", Email = "ada@example.com" },
         new User { Name = "Alan Turing", Email = "alan@example.com" });
+    db.Products.AddRange(
+        new Product { Name = "Widget", Price = 9.99m },
+        new Product { Name = "Gadget", Price = 19.99m });
     db.SaveChanges();
 }
 

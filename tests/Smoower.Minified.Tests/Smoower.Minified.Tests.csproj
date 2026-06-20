@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\Smoower.Minified.Json\Smoower.Minified.Json.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Json.Newtonsoft\Smoower.Minified.Json.Newtonsoft.csproj" />
     <ProjectReference Include="..\..\src\Smoower.Minified.Dapper\Smoower.Minified.Dapper.csproj" />
+    <ProjectReference Include="..\..\src\Smoower.Minified.Identity\Smoower.Minified.Identity.csproj" />
   </ItemGroup>
 
 </Project>

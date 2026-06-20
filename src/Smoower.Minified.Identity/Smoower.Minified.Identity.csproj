@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>$(SmoowerLibTargets)</TargetFrameworks>
+    <PackageId>Smoower.Minified.Identity</PackageId>
+    <Description>Compact ASP.NET Core Identity helpers for AI-generated auth code: short UserManager / SignInManager / RoleManager operations (create/byEmail/byName/checkPw/addRole/roles, pwSignIn/signIn/signOut, role create/exists).</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>
