@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Smoower.Minified.Tools</RootNamespace>
+    <AssemblyName>minified</AssemblyName>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>minified</ToolCommandName>
+    <PackageId>Smoower.Minified.Tools</PackageId>
+    <Description>CLI + engine that expands compact Smoower.Minified C# back to readable form and re-compacts it. Phase 0: Roslyn-based reflow round-trip + vocab.json generation.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+  </ItemGroup>
+
+</Project>

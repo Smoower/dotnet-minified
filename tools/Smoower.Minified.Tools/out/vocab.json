@@ -1,0 +1,284 @@
+{
+  "version": "0.1",
+  "language": "csharp",
+  "typeAliases": {
+    "Res": {
+      "long": "IActionResult",
+      "full": "Microsoft.AspNetCore.Mvc.IActionResult"
+    },
+    "AR": {
+      "long": "ActionResult",
+      "full": "Microsoft.AspNetCore.Mvc.ActionResult"
+    },
+    "CT": {
+      "long": "CancellationToken",
+      "full": "System.Threading.CancellationToken"
+    },
+    "Cfg": {
+      "long": "IConfiguration",
+      "full": "Microsoft.Extensions.Configuration.IConfiguration"
+    },
+    "Tr": {
+      "long": "Task<IActionResult>",
+      "full": "System.Threading.Tasks.Task<Microsoft.AspNetCore.Mvc.IActionResult>"
+    },
+    "KNF": {
+      "long": "KeyNotFoundException",
+      "full": "System.Collections.Generic.KeyNotFoundException"
+    },
+    "IOE": {
+      "long": "InvalidOperationException",
+      "full": "System.InvalidOperationException"
+    },
+    "UAE": {
+      "long": "UnauthorizedAccessException",
+      "full": "System.UnauthorizedAccessException"
+    },
+    "AE": {
+      "long": "ArgumentException",
+      "full": "System.ArgumentException"
+    },
+    "JPN": {
+      "long": "JsonPropertyNameAttribute",
+      "full": "System.Text.Json.Serialization.JsonPropertyNameAttribute"
+    },
+    "JI": {
+      "long": "JsonIgnoreAttribute",
+      "full": "System.Text.Json.Serialization.JsonIgnoreAttribute"
+    },
+    "JC": {
+      "long": "JsonConverterAttribute",
+      "full": "System.Text.Json.Serialization.JsonConverterAttribute"
+    },
+    "JSEM": {
+      "long": "JsonStringEnumMemberNameAttribute",
+      "full": "System.Text.Json.Serialization.JsonStringEnumMemberNameAttribute"
+    },
+    "JPO": {
+      "long": "JsonPropertyOrderAttribute",
+      "full": "System.Text.Json.Serialization.JsonPropertyOrderAttribute"
+    },
+    "Tbl": {
+      "long": "TableAttribute",
+      "full": "System.ComponentModel.DataAnnotations.Schema.TableAttribute"
+    },
+    "NM": {
+      "long": "NotMappedAttribute",
+      "full": "System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute"
+    },
+    "Req": {
+      "long": "RequiredAttribute",
+      "full": "System.ComponentModel.DataAnnotations.RequiredAttribute"
+    },
+    "MaxLen": {
+      "long": "MaxLengthAttribute",
+      "full": "System.ComponentModel.DataAnnotations.MaxLengthAttribute"
+    },
+    "StrLen": {
+      "long": "StringLengthAttribute",
+      "full": "System.ComponentModel.DataAnnotations.StringLengthAttribute"
+    },
+    "Rng": {
+      "long": "RangeAttribute",
+      "full": "System.ComponentModel.DataAnnotations.RangeAttribute"
+    }
+  },
+  "attributes": {
+    "API": {
+      "long": "ApiController"
+    },
+    "RT": {
+      "long": "Route"
+    },
+    "HG": {
+      "long": "HttpGet"
+    },
+    "HPO": {
+      "long": "HttpPost"
+    },
+    "HPU": {
+      "long": "HttpPut"
+    },
+    "HPA": {
+      "long": "HttpPatch"
+    },
+    "HD": {
+      "long": "HttpDelete"
+    },
+    "AUTH": {
+      "long": "Authorize"
+    },
+    "ANON": {
+      "long": "AllowAnonymous"
+    },
+    "FB": {
+      "long": "FromBody"
+    },
+    "FR": {
+      "long": "FromRoute"
+    },
+    "FQ": {
+      "long": "FromQuery"
+    },
+    "FH": {
+      "long": "FromHeader"
+    },
+    "P200": {
+      "long": "ProducesResponseType(200)"
+    },
+    "P201": {
+      "long": "ProducesResponseType(201)"
+    },
+    "P204": {
+      "long": "ProducesResponseType(204)"
+    },
+    "P400": {
+      "long": "ProducesResponseType(400)"
+    },
+    "P404": {
+      "long": "ProducesResponseType(404)"
+    },
+    "F": {
+      "long": "Fact"
+    },
+    "Th": {
+      "long": "Theory"
+    },
+    "In": {
+      "long": "InlineData"
+    },
+    "Mem": {
+      "long": "MemberData"
+    }
+  },
+  "methods": {
+    "w": {
+      "long": "Where"
+    },
+    "s": {
+      "long": "Select"
+    },
+    "ob": {
+      "long": "OrderBy"
+    },
+    "obd": {
+      "long": "OrderByDescending"
+    },
+    "tb": {
+      "long": "ThenBy"
+    },
+    "tbd": {
+      "long": "ThenByDescending"
+    },
+    "sk": {
+      "long": "Skip"
+    },
+    "tk": {
+      "long": "Take"
+    },
+    "nt": {
+      "long": "AsNoTracking"
+    },
+    "inc": {
+      "long": "Include"
+    },
+    "lst": {
+      "long": "ToListAsync"
+    },
+    "one": {
+      "long": "FirstOrDefaultAsync"
+    },
+    "single": {
+      "long": "SingleOrDefaultAsync"
+    },
+    "any": {
+      "long": "AnyAsync"
+    },
+    "cnt": {
+      "long": "CountAsync"
+    },
+    "save": {
+      "long": "SaveChangesAsync"
+    },
+    "upd": {
+      "long": "Update"
+    },
+    "del": {
+      "long": "Remove"
+    },
+    "nil": {
+      "long": "string.IsNullOrWhiteSpace"
+    },
+    "emp": {
+      "long": "is empty",
+      "note": "collection-empty guard"
+    },
+    "none": {
+      "long": "!Any()"
+    },
+    "inf": {
+      "long": "LogInformation"
+    },
+    "wrn": {
+      "long": "LogWarning"
+    },
+    "err": {
+      "long": "LogError"
+    },
+    "dbg": {
+      "long": "LogDebug"
+    },
+    "scoped": {
+      "long": "AddScoped"
+    },
+    "trans": {
+      "long": "AddTransient"
+    },
+    "toJson": {
+      "long": "JsonSerializer.Serialize"
+    },
+    "fromJson": {
+      "long": "JsonSerializer.Deserialize"
+    },
+    "getJson": {
+      "long": "GetFromJsonAsync"
+    },
+    "postJson": {
+      "long": "PostAsJsonAsync"
+    }
+  },
+  "terminators": {
+    "ok1": {
+      "long": "FirstOrDefaultAsync + 200/404",
+      "note": "single: 200 with value, 404 if null"
+    },
+    "okl": {
+      "long": "ToListAsync + 200",
+      "note": "200 with list"
+    },
+    "okc": {
+      "long": "CountAsync + 200",
+      "note": "200 with count"
+    },
+    "okId": {
+      "long": "Set.FindAsync + 200/404",
+      "note": "200 by key, 404 if missing"
+    },
+    "okAdd": {
+      "long": "Add + SaveChangesAsync + 200",
+      "note": "add then 200 with entity"
+    },
+    "okNew": {
+      "long": "Add + SaveChangesAsync + 201",
+      "note": "add then 201 Created"
+    },
+    "created": {
+      "long": "201 Created",
+      "note": "wrap value as 201"
+    },
+    "delById": {
+      "long": "Find + Remove + Save + 204/404",
+      "note": "delete by key, 204 or 404"
+    }
+  }
+}
